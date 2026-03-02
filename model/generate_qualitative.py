@@ -1,6 +1,6 @@
 """
-Generate qualitative comparison figure: 5 rows (models) x 8 columns (test images).
-Compact layout for paper front page. Green/red borders only, label overlaid on image.
+Generate qualitative comparison figure: 5 rows (models) x 6 columns (test images).
+Compact layout for paper front page. Maximizes visible disagreement between models.
 
 Usage: cd model/ && python generate_qualitative.py
 """
@@ -14,7 +14,6 @@ import joblib
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch
 from PIL import Image
 from torchvision import transforms
 
@@ -31,8 +30,10 @@ FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 
 MODEL_NAMES = ["resnet50", "efficientnet_b2", "vit_b_16", "convnext_tiny", "svm_resnet_features"]
 DISPLAY_NAMES = ["ResNet-50", "EffNet-B2", "ViT-B/16", "ConvNeXt", "SVM"]
+# Index of DL-only models (exclude SVM for disagreement scoring)
+DL_INDICES = [0, 1, 2, 3]
 
-NUM_COLS = 8
+NUM_COLS = 6
 
 plt.rcParams.update({
     "font.family": "serif",
@@ -78,8 +79,7 @@ def get_all_predictions(device):
             feats_list = []
             with torch.no_grad():
                 for imgs, labels in test_loader:
-                    imgs = imgs.to(device)
-                    feats_list.append(extractor(imgs).cpu().numpy())
+                    feats_list.append(extractor(imgs.to(device)).cpu().numpy())
             X_test = np.vstack(feats_list)
             y_pred = svm.predict(scaler.transform(X_test))
         else:
@@ -91,8 +91,7 @@ def get_all_predictions(device):
             preds_list = []
             with torch.no_grad():
                 for imgs, labels in test_loader:
-                    logits = model(imgs.to(device))
-                    preds_list.extend(logits.argmax(1).cpu().numpy())
+                    preds_list.extend(model(imgs.to(device)).argmax(1).cpu().numpy())
             y_pred = np.array(preds_list)
         all_preds[model_name] = y_pred
 
@@ -100,31 +99,70 @@ def get_all_predictions(device):
 
 
 def select_images(y_true, all_preds, n=NUM_COLS):
-    pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)
-    correct_matrix = (pred_matrix == y_true[None, :])
-    n_correct = correct_matrix.sum(axis=0)
+    """Select images that maximize visible disagreement across models."""
+    pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)  # (5, N)
+    correct_matrix = (pred_matrix == y_true[None, :])  # (5, N)
+    n_correct_all = correct_matrix.sum(axis=0)  # how many of 5 models correct
 
-    all_correct = np.where(n_correct == 5)[0]
-    some_wrong = np.where((n_correct >= 1) & (n_correct <= 4))[0]
-    all_wrong = np.where(n_correct == 0)[0]
+    # DL-only correctness (4 DL models, excluding SVM)
+    dl_correct = correct_matrix[DL_INDICES, :]  # (4, N)
+    n_dl_correct = dl_correct.sum(axis=0)
+
+    # Count unique predictions per image (more unique = more disagreement)
+    n_unique_preds = np.array([len(set(pred_matrix[:, i])) for i in range(len(y_true))])
 
     rng = np.random.default_rng(42)
     selected = []
 
-    # 2 all-correct, 4 some-wrong, 2 all-wrong
-    if len(all_correct) > 0:
-        selected.extend(rng.choice(all_correct, min(2, len(all_correct)), replace=False).tolist())
-    if len(some_wrong) > 0:
-        disagree = some_wrong[np.isin(n_correct[some_wrong], [2, 3, 4])]
-        pool = disagree if len(disagree) >= 4 else some_wrong
-        selected.extend(rng.choice(pool, min(4, len(pool)), replace=False).tolist())
-    if len(all_wrong) > 0:
-        selected.extend(rng.choice(all_wrong, min(2, len(all_wrong)), replace=False).tolist())
+    # --- Column 1: all 5 models correct (easy case, for contrast) ---
+    easy = np.where(n_correct_all == 5)[0]
+    if len(easy) > 0:
+        selected.append(rng.choice(easy, 1)[0])
 
+    # --- Columns 2-3: DL models disagree (1-3 DL correct, not all same) ---
+    # These are the most interesting: some DL models right, some wrong
+    dl_disagree = np.where((n_dl_correct >= 1) & (n_dl_correct <= 3))[0]
+    if len(dl_disagree) > 0:
+        # Rank by number of unique predictions (more diverse = better)
+        scores = n_unique_preds[dl_disagree]
+        top_idx = dl_disagree[np.argsort(-scores)]
+        # Remove already selected
+        top_idx = [i for i in top_idx if i not in selected]
+        selected.extend(top_idx[:2])
+
+    # --- Column 4: only SVM wrong, all DL correct ---
+    svm_only_wrong = np.where((n_dl_correct == 4) & (n_correct_all == 4))[0]
+    if len(svm_only_wrong) > 0:
+        pool = [i for i in svm_only_wrong if i not in selected]
+        if pool:
+            selected.append(rng.choice(pool, 1)[0])
+
+    # --- Column 5: only ConvNeXt correct (shows its strength) ---
+    convnext_idx = MODEL_NAMES.index("convnext_tiny")
+    only_convnext = np.where(
+        (correct_matrix[convnext_idx, :] == True) & (n_correct_all <= 2)
+    )[0]
+    if len(only_convnext) > 0:
+        pool = [i for i in only_convnext if i not in selected]
+        if pool:
+            selected.append(rng.choice(pool, 1)[0])
+
+    # --- Column 6: all wrong (hardest) ---
+    all_wrong = np.where(n_correct_all == 0)[0]
+    if len(all_wrong) > 0:
+        # Pick one with most unique predictions (diverse wrong answers)
+        pool = [i for i in all_wrong if i not in selected]
+        if pool:
+            scores = n_unique_preds[pool]
+            selected.append(pool[np.argmax(scores)])
+
+    # Fill remaining slots with max-disagreement images
     remaining = n - len(selected)
     if remaining > 0:
-        leftover = list(set(range(len(y_true))) - set(selected))
-        selected.extend(rng.choice(leftover, remaining, replace=False).tolist())
+        pool = [i for i in range(len(y_true)) if i not in selected]
+        scores = n_unique_preds[pool]
+        top = np.argsort(-scores)[:remaining]
+        selected.extend([pool[i] for i in top])
 
     return selected[:n]
 
@@ -134,9 +172,9 @@ def generate_figure(y_true, all_preds, test_ds, class_names, indices):
     n_cols = len(indices)
     n_rows = len(MODEL_NAMES)
 
-    cell_w, cell_h = 1.0, 1.0
-    fig_w = n_cols * cell_w + 1.0   # extra for row labels
-    fig_h = n_rows * cell_h + 0.5   # extra for GT header
+    cell_w, cell_h = 1.2, 1.15
+    fig_w = n_cols * cell_w + 0.8
+    fig_h = n_rows * cell_h + 0.35
     fig, axes = plt.subplots(n_rows, n_cols, figsize=(fig_w, fig_h))
 
     GREEN = "#2ca02c"
@@ -154,14 +192,12 @@ def generate_figure(y_true, all_preds, test_ds, class_names, indices):
             pred = all_preds[model_name][idx]
             is_correct = (pred == gt)
 
-            # Border color
             border_color = GREEN if is_correct else RED
-            border_width = 2.5
             for spine in ax.spines.values():
                 spine.set_edgecolor(border_color)
-                spine.set_linewidth(border_width)
+                spine.set_linewidth(2.5)
 
-            # Overlay label on top-left of image
+            # Overlay predicted label
             pred_name = class_names[pred]
             if len(pred_name) > 10:
                 pred_name = pred_name[:9] + "."
@@ -176,24 +212,34 @@ def generate_figure(y_true, all_preds, test_ds, class_names, indices):
 
         # Row label
         axes[row, 0].set_ylabel(
-            display_name, fontsize=7, fontweight="bold",
+            display_name, fontsize=7.5, fontweight="bold",
             rotation=90, labelpad=5,
         )
 
-    # GT header on top row
+    # GT header
     for col, idx in enumerate(indices):
         gt_name = class_names[y_true[idx]]
         if len(gt_name) > 12:
             gt_name = gt_name[:11] + "."
-        axes[0, col].set_title(gt_name, fontsize=5.5, fontstyle="italic",
+        axes[0, col].set_title(gt_name, fontsize=6, fontstyle="italic",
                                 color="#444444", pad=3)
 
-    fig.subplots_adjust(hspace=0.12, wspace=0.08)
+    fig.subplots_adjust(hspace=0.10, wspace=0.08)
+
+    # Print selection info
+    pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)
+    correct_matrix = (pred_matrix == y_true[None, :])
+    print("\nSelected images breakdown:")
+    for col, idx in enumerate(indices):
+        n_ok = correct_matrix[:, idx].sum()
+        models_ok = [DISPLAY_NAMES[r] for r in range(5) if correct_matrix[r, idx]]
+        gt_name = class_names[y_true[idx]]
+        print(f"  Col {col+1}: GT={gt_name}, {n_ok}/5 correct ({', '.join(models_ok) or 'none'})")
 
     fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.pdf")
     fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.png")
     plt.close(fig)
-    print(f"Saved to {FIGURE_DIR / 'fig_qualitative_comparison.pdf'}")
+    print(f"\nSaved to {FIGURE_DIR / 'fig_qualitative_comparison.pdf'}")
 
 
 if __name__ == "__main__":
