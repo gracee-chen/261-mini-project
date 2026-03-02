@@ -1,0 +1,52 @@
+# Model training config - Caltech-101
+
+data:
+  root: ../data
+  split_dir: caltech101_split
+  classes_file: classes.txt
+
+training:
+  batch_size: 32
+  num_workers: 4
+  epochs: 30
+  lr_backbone: 1e-4
+  lr_head: 1e-3
+  weight_decay: 1e-4
+  lr_scheduler: warmup_cosine
+  warmup_epochs: 5
+  label_smoothing: 0.1
+  max_grad_norm: 1.0
+  early_stopping_patience: 5
+
+augmentation:
+  train:
+    resize: 256
+    crop: 224
+    horizontal_flip: true
+    color_jitter: [0.4, 0.4, 0.4, 0.1]
+    random_erasing: 0.25
+  eval:
+    resize: 256
+    crop: 224
+
+output:
+  checkpoints_dir: ../checkpoints
+  logs_dir: ../logs
+
+# Model variants
+models:
+  resnet50:
+    paper: "Deep Residual Learning for Image Recognition (He et al., CVPR 2016)"
+    backbone: resnet50
+  efficientnet_b2:
+    paper: "EfficientNet: Rethinking Model Scaling for CNNs (Tan & Le, ICML 2019)"
+    backbone: efficientnet_b2
+  vit_b_16:
+    paper: "An Image is Worth 16x16 Words (Dosovitskiy et al., ICLR 2021)"
+    backbone: vit_b_16
+  convnext_tiny:
+    paper: "A ConvNet for the 2020s (Liu et al., CVPR 2022)"
+    backbone: convnext_tiny
+  svm_resnet_features:
+    paper: "Classical ML: SVM with CNN features (ResNet-18 frozen)"
+    type: classical

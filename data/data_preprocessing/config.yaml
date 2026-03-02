@@ -1,0 +1,15 @@
+# Mini-Project 1: Caltech-101 Image Classification
+
+dataset:
+  name: caltech-101
+  kaggle_dataset: imbikramsaha/caltech-101
+  raw_subdir: caltech-101
+  output_subdir: caltech101_split
+
+split:
+  train: 0.70
+  val: 0.15
+  test: 0.15
+  random_state: 42
+
+exclude_background: false
