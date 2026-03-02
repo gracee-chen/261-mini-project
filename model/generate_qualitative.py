@@ -33,7 +33,7 @@ DISPLAY_NAMES = ["ResNet-50", "EffNet-B2", "ViT-B/16", "ConvNeXt", "SVM"]
 # Index of DL-only models (exclude SVM for disagreement scoring)
 DL_INDICES = [0, 1, 2, 3]
 
-NUM_COLS = 6
+NUM_COLS = 8
 
 plt.rcParams.update({
     "font.family": "serif",
@@ -119,25 +119,22 @@ def select_images(y_true, all_preds, n=NUM_COLS):
     if len(easy) > 0:
         selected.append(rng.choice(easy, 1)[0])
 
-    # --- Columns 2-3: DL models disagree (1-3 DL correct, not all same) ---
-    # These are the most interesting: some DL models right, some wrong
+    # --- Columns 2-4: DL models disagree (1-3 DL correct, not all same) ---
     dl_disagree = np.where((n_dl_correct >= 1) & (n_dl_correct <= 3))[0]
     if len(dl_disagree) > 0:
-        # Rank by number of unique predictions (more diverse = better)
         scores = n_unique_preds[dl_disagree]
         top_idx = dl_disagree[np.argsort(-scores)]
-        # Remove already selected
         top_idx = [i for i in top_idx if i not in selected]
-        selected.extend(top_idx[:2])
+        selected.extend(top_idx[:3])
 
-    # --- Column 4: only SVM wrong, all DL correct ---
+    # --- Column 5: only SVM wrong, all DL correct ---
     svm_only_wrong = np.where((n_dl_correct == 4) & (n_correct_all == 4))[0]
     if len(svm_only_wrong) > 0:
         pool = [i for i in svm_only_wrong if i not in selected]
         if pool:
             selected.append(rng.choice(pool, 1)[0])
 
-    # --- Column 5: only ConvNeXt correct (shows its strength) ---
+    # --- Column 6: only ConvNeXt correct (shows its strength) ---
     convnext_idx = MODEL_NAMES.index("convnext_tiny")
     only_convnext = np.where(
         (correct_matrix[convnext_idx, :] == True) & (n_correct_all <= 2)
@@ -147,10 +144,19 @@ def select_images(y_true, all_preds, n=NUM_COLS):
         if pool:
             selected.append(rng.choice(pool, 1)[0])
 
-    # --- Column 6: all wrong (hardest) ---
+    # --- Column 7: ViT wrong but others correct (ViT weakness) ---
+    vit_idx = MODEL_NAMES.index("vit_b_16")
+    vit_wrong = np.where(
+        (correct_matrix[vit_idx, :] == False) & (n_dl_correct >= 3)
+    )[0]
+    if len(vit_wrong) > 0:
+        pool = [i for i in vit_wrong if i not in selected]
+        if pool:
+            selected.append(rng.choice(pool, 1)[0])
+
+    # --- Column 8: all wrong (hardest) ---
     all_wrong = np.where(n_correct_all == 0)[0]
     if len(all_wrong) > 0:
-        # Pick one with most unique predictions (diverse wrong answers)
         pool = [i for i in all_wrong if i not in selected]
         if pool:
             scores = n_unique_preds[pool]
