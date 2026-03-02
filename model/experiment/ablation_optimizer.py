@@ -23,18 +23,24 @@ EPOCHS = 10
 PATIENCE = 5
 WARMUP = 2
 LABEL_SMOOTHING = 0.1
-LR_BACKBONE = 1e-4
-LR_HEAD = 1e-3
+
+# Per-optimizer tuned learning rates (fair comparison)
+OPTIMIZER_CONFIG = {
+    "AdamW": {"lr_backbone": 1e-4, "lr_head": 1e-3},
+    "SGD":   {"lr_backbone": 5e-3, "lr_head": 5e-2},
+}
 
 
 def _train_with_optimizer(name: str, train_loader, val_loader, device: torch.device) -> float:
+    cfg = OPTIMIZER_CONFIG[name]
     print(f"\n{'='*50}")
-    print(f"  Optimizer: {name}")
+    print(f"  Optimizer: {name} (backbone_lr={cfg['lr_backbone']}, head_lr={cfg['lr_head']})")
     print(f"{'='*50}")
 
     num_classes = len(train_loader.dataset.classes)
     model = build_model("convnext_tiny", num_classes).to(device)
-    param_groups = get_param_groups(model, "convnext_tiny", lr_backbone=LR_BACKBONE, lr_head=LR_HEAD)
+    param_groups = get_param_groups(model, "convnext_tiny",
+                                    lr_backbone=cfg["lr_backbone"], lr_head=cfg["lr_head"])
 
     if name == "AdamW":
         optimizer = AdamW(param_groups, weight_decay=1e-4)

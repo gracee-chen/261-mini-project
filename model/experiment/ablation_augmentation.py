@@ -21,9 +21,9 @@ from models import build_model, get_param_groups
 from train import train_epoch, evaluate
 
 
-EPOCHS = 10
-PATIENCE = 5
-WARMUP = 2
+EPOCHS = 20
+PATIENCE = 7
+WARMUP = 3
 LABEL_SMOOTHING = 0.1
 LR_BACKBONE = 1e-4
 LR_HEAD = 1e-3
@@ -48,7 +48,7 @@ def _no_aug_loaders(batch_size: int = 32, num_workers: int = 4):
     return train_loader, val_loader
 
 
-def _train_variant(name: str, train_loader, val_loader, device: torch.device) -> float:
+def _train_variant(name: str, train_loader, val_loader, device: torch.device) -> dict:
     print(f"\n{'='*50}")
     print(f"  Augmentation: {name}")
     print(f"{'='*50}")
@@ -71,12 +71,19 @@ def _train_variant(name: str, train_loader, val_loader, device: torch.device) ->
 
     best_acc = 0.0
     patience_counter = 0
+    history = {"train_acc": [], "val_acc": []}
 
     for epoch in range(EPOCHS):
         train_loss = train_epoch(model, train_loader, criterion, optimizer, device)
+        train_acc, _ = evaluate(model, train_loader, device)
         val_acc, val_loss = evaluate(model, val_loader, device)
         scheduler.step()
-        print(f"  Epoch {epoch+1}/{EPOCHS} | train_loss={train_loss:.4f} | val_acc={val_acc:.4f}")
+
+        history["train_acc"].append(train_acc)
+        history["val_acc"].append(val_acc)
+
+        print(f"  Epoch {epoch+1}/{EPOCHS} | train_loss={train_loss:.4f} | "
+              f"train_acc={train_acc:.4f} | val_acc={val_acc:.4f}")
 
         if val_acc > best_acc:
             best_acc = val_acc
@@ -87,11 +94,13 @@ def _train_variant(name: str, train_loader, val_loader, device: torch.device) ->
                 print(f"  Early stopping at epoch {epoch+1}")
                 break
 
-    print(f"  Best val acc ({name}): {best_acc:.4f}")
-    return best_acc
+    gap = history["train_acc"][-1] - history["val_acc"][-1]
+    print(f"  Best val acc ({name}): {best_acc:.4f} | "
+          f"Final train-val gap: {gap:.4f}")
+    return {"best_val_acc": best_acc, "history": history}
 
 
-def run(device: torch.device) -> dict[str, float]:
+def run(device: torch.device) -> dict[str, dict]:
     results = {}
 
     # With augmentation (default transforms)
@@ -105,14 +114,16 @@ def run(device: torch.device) -> dict[str, float]:
     return results
 
 
-def print_table(results: dict[str, float]):
+def print_table(results: dict[str, dict]):
     print(f"\n{'='*50}")
-    print("  Ablation: Augmentation (ConvNeXt-Tiny, 10 epochs)")
+    print("  Ablation: Augmentation (ConvNeXt-Tiny, 20 epochs)")
     print(f"{'='*50}")
-    print(f"  {'Augmentation':<15} {'Val Acc':>10}")
-    print(f"  {'-'*25}")
-    for name, acc in results.items():
-        print(f"  {name:<15} {acc:>10.4f}")
+    print(f"  {'Augmentation':<15} {'Val Acc':>10} {'Train-Val Gap':>15}")
+    print(f"  {'-'*42}")
+    for name, info in results.items():
+        h = info["history"]
+        gap = h["train_acc"][-1] - h["val_acc"][-1]
+        print(f"  {name:<15} {info['best_val_acc']:>10.4f} {gap:>14.4f}")
     print()
 
 

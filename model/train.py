@@ -122,8 +122,8 @@ def main():
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--lr", type=float, default=1e-3, help="(legacy) single LR, ignored when lr_backbone/lr_head set")
-    parser.add_argument("--lr_backbone", type=float, default=1e-4, help="Learning rate for pretrained backbone")
-    parser.add_argument("--lr_head", type=float, default=1e-3, help="Learning rate for classifier head")
+    parser.add_argument("--lr_backbone", type=float, default=None, help="Learning rate for pretrained backbone (auto per model if not set)")
+    parser.add_argument("--lr_head", type=float, default=None, help="Learning rate for classifier head (auto per model if not set)")
     parser.add_argument("--label_smoothing", type=float, default=0.1)
     parser.add_argument("--warmup_epochs", type=int, default=5)
     parser.add_argument("--max_grad_norm", type=float, default=1.0)
@@ -137,6 +137,19 @@ def main():
     if args.model == "svm_resnet_features":
         train_svm_model(args)
         return
+
+    # Per-model default learning rates (ViT needs lower lr)
+    _DEFAULT_LR = {
+        "vit_b_16":        (2e-5, 2e-4),
+        "resnet50":        (1e-4, 1e-3),
+        "efficientnet_b2": (1e-4, 1e-3),
+        "convnext_tiny":   (1e-4, 1e-3),
+    }
+    default_bb, default_hd = _DEFAULT_LR.get(args.model, (1e-4, 1e-3))
+    if args.lr_backbone is None:
+        args.lr_backbone = default_bb
+    if args.lr_head is None:
+        args.lr_head = default_hd
 
     device = torch.device(args.device)
     data_root = args.data_root or get_data_root()
