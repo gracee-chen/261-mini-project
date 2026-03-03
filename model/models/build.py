@@ -1,13 +1,15 @@
 """
 Build models by name. All use ImageNet pretrained weights.
+torchvision models + timm (for EVA-02).
 """
 
 import torch.nn as nn
 from torchvision import models
+import timm
 
 
 def build_model(name: str, num_classes: int) -> nn.Module:
-    """Build a classification model. name: resnet50, efficientnet_b2, vit_b_16, convnext_tiny."""
+    """Build a classification model with pretrained weights."""
     if name == "resnet50":
         m = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
         m.fc = nn.Linear(m.fc.in_features, num_classes)
@@ -28,6 +30,15 @@ def build_model(name: str, num_classes: int) -> nn.Module:
         m.classifier[2] = nn.Linear(m.classifier[2].in_features, num_classes)
         return m
 
+    if name == "eva02_small":
+        # EVA-02 Small (IJCV 2024): MIM-pretrained on IN-22k, fine-tuned on IN-1k
+        m = timm.create_model(
+            "eva02_small_patch14_224.mim_in22k_ft_in1k",
+            pretrained=True,
+            num_classes=num_classes,
+        )
+        return m
+
     raise ValueError(f"Unknown model: {name}")
 
 
@@ -41,6 +52,8 @@ def get_param_groups(model: nn.Module, name: str, lr_backbone: float = 1e-4, lr_
         head_params = list(model.heads.parameters())
     elif name == "convnext_tiny":
         head_params = list(model.classifier.parameters())
+    elif name == "eva02_small":
+        head_params = list(model.head.parameters())
     else:
         raise ValueError(f"Unknown model: {name}")
 
@@ -54,4 +67,4 @@ def get_param_groups(model: nn.Module, name: str, lr_backbone: float = 1e-4, lr_
 
 
 def get_model_names() -> list[str]:
-    return ["resnet50", "efficientnet_b2", "vit_b_16", "convnext_tiny", "svm_resnet_features"]
+    return ["resnet50", "efficientnet_b2", "vit_b_16", "convnext_tiny", "eva02_small", "svm_resnet_features"]

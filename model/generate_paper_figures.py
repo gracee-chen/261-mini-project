@@ -59,10 +59,10 @@ plt.rcParams.update({
     "axes.spines.right": False,
 })
 
-MODEL_NAMES = ["resnet50", "efficientnet_b2", "vit_b_16", "convnext_tiny", "svm_resnet_features"]
-DISPLAY_NAMES = ["ResNet-50", "EfficientNet-B2", "ViT-B/16", "ConvNeXt-Tiny", "SVM+ResNet-18"]
-COLORS = ["#4477AA", "#EE6677", "#228833", "#CCBB44", "#AA3377"]
-MARKERS = ["o", "s", "^", "D", "v"]
+MODEL_NAMES = ["resnet50", "efficientnet_b2", "vit_b_16", "convnext_tiny", "eva02_small", "svm_resnet_features"]
+DISPLAY_NAMES = ["ResNet-50", "EfficientNet-B2", "ViT-B/16", "ConvNeXt-Tiny", "EVA-02-S", "SVM+ResNet-18"]
+COLORS = ["#4477AA", "#EE6677", "#228833", "#CCBB44", "#66CCEE", "#AA3377"]
+MARKERS = ["o", "s", "^", "D", "P", "v"]
 
 
 # ================================================================

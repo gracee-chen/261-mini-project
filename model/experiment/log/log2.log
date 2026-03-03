@@ -1,0 +1,288 @@
+Device: cuda
+
+==================================================
+  Optimizer: AdamW (backbone_lr=0.0001, head_lr=0.001)
+==================================================
+  Epoch 1/10 | train_loss=4.5242 | val_acc=0.2187
+  Epoch 2/10 | train_loss=1.8138 | val_acc=0.9540
+  Epoch 3/10 | train_loss=0.9553 | val_acc=0.9638
+  Epoch 4/10 | train_loss=0.8720 | val_acc=0.9661
+  Epoch 5/10 | train_loss=0.8367 | val_acc=0.9600
+  Epoch 6/10 | train_loss=0.8207 | val_acc=0.9661
+  Epoch 7/10 | train_loss=0.8124 | val_acc=0.9661
+  Epoch 8/10 | train_loss=0.8031 | val_acc=0.9713
+  Epoch 9/10 | train_loss=0.7994 | val_acc=0.9751
+  Epoch 10/10 | train_loss=0.7941 | val_acc=0.9781
+  Best val acc (AdamW): 0.9781
+
+==================================================
+  Optimizer: SGD (backbone_lr=0.005, head_lr=0.05)
+==================================================
+  Epoch 1/10 | train_loss=4.5139 | val_acc=0.2436
+  Epoch 2/10 | train_loss=2.2913 | val_acc=0.8839
+  Epoch 3/10 | train_loss=1.1478 | val_acc=0.9382
+  Epoch 4/10 | train_loss=0.9982 | val_acc=0.9502
+  Epoch 5/10 | train_loss=0.9470 | val_acc=0.9525
+  Epoch 6/10 | train_loss=0.9209 | val_acc=0.9555
+  Epoch 7/10 | train_loss=0.8954 | val_acc=0.9585
+  Epoch 8/10 | train_loss=0.8791 | val_acc=0.9623
+  Epoch 9/10 | train_loss=0.8702 | val_acc=0.9623
+  Epoch 10/10 | train_loss=0.8645 | val_acc=0.9623
+  Best val acc (SGD): 0.9623
+
+==================================================
+  Ablation: Optimizer (ConvNeXt-Tiny, 10 epochs)
+==================================================
+  Optimizer       Val Acc
+  ----------------------
+  AdamW            0.9781
+  SGD              0.9623
+
+Device: cuda
+
+==================================================
+  Augmentation: With
+==================================================
+  Epoch 1/20 | train_loss=4.5762 | train_acc=0.1259 | val_acc=0.1448
+  Epoch 2/20 | train_loss=2.1391 | train_acc=0.9572 | val_acc=0.9412
+  Epoch 3/20 | train_loss=0.9823 | train_acc=0.9822 | val_acc=0.9638
+  Epoch 4/20 | train_loss=0.8977 | train_acc=0.9906 | val_acc=0.9532
+  Epoch 5/20 | train_loss=0.8592 | train_acc=0.9928 | val_acc=0.9638
+  Epoch 6/20 | train_loss=0.8406 | train_acc=0.9953 | val_acc=0.9676
+  Epoch 7/20 | train_loss=0.8265 | train_acc=0.9967 | val_acc=0.9691
+  Epoch 8/20 | train_loss=0.8138 | train_acc=0.9959 | val_acc=0.9661
+  Epoch 9/20 | train_loss=0.8080 | train_acc=0.9983 | val_acc=0.9683
+  Epoch 10/20 | train_loss=0.8020 | train_acc=0.9969 | val_acc=0.9661
+  Epoch 11/20 | train_loss=0.7982 | train_acc=0.9983 | val_acc=0.9713
+  Epoch 12/20 | train_loss=0.7960 | train_acc=0.9986 | val_acc=0.9683
+  Epoch 13/20 | train_loss=0.7938 | train_acc=0.9995 | val_acc=0.9691
+  Epoch 14/20 | train_loss=0.7913 | train_acc=0.9986 | val_acc=0.9736
+  Epoch 15/20 | train_loss=0.7913 | train_acc=0.9987 | val_acc=0.9713
+  Epoch 16/20 | train_loss=0.7893 | train_acc=0.9989 | val_acc=0.9721
+  Epoch 17/20 | train_loss=0.7877 | train_acc=0.9989 | val_acc=0.9751
+  Epoch 18/20 | train_loss=0.7877 | train_acc=0.9984 | val_acc=0.9744
+  Epoch 19/20 | train_loss=0.7874 | train_acc=0.9995 | val_acc=0.9736
+  Epoch 20/20 | train_loss=0.7867 | train_acc=0.9989 | val_acc=0.9736
+  Best val acc (With): 0.9751 | Final train-val gap: 0.0253
+
+==================================================
+  Augmentation: Without
+==================================================
+  Epoch 1/20 | train_loss=4.5134 | train_acc=0.1902 | val_acc=0.1961
+  Epoch 2/20 | train_loss=2.0155 | train_acc=0.9750 | val_acc=0.9517
+  Epoch 3/20 | train_loss=0.9193 | train_acc=0.9953 | val_acc=0.9676
+  Epoch 4/20 | train_loss=0.8466 | train_acc=0.9964 | val_acc=0.9593
+  Epoch 5/20 | train_loss=0.8174 | train_acc=0.9967 | val_acc=0.9600
+  Epoch 6/20 | train_loss=0.8094 | train_acc=0.9989 | val_acc=0.9713
+  Epoch 7/20 | train_loss=0.7982 | train_acc=0.9995 | val_acc=0.9691
+  Epoch 8/20 | train_loss=0.7944 | train_acc=0.9995 | val_acc=0.9683
+  Epoch 9/20 | train_loss=0.7896 | train_acc=0.9995 | val_acc=0.9683
+  Epoch 10/20 | train_loss=0.7895 | train_acc=0.9995 | val_acc=0.9713
+  Epoch 11/20 | train_loss=0.7862 | train_acc=0.9995 | val_acc=0.9683
+  Epoch 12/20 | train_loss=0.7860 | train_acc=0.9995 | val_acc=0.9751
+  Epoch 13/20 | train_loss=0.7848 | train_acc=0.9995 | val_acc=0.9721
+  Epoch 14/20 | train_loss=0.7841 | train_acc=0.9995 | val_acc=0.9736
+  Epoch 15/20 | train_loss=0.7836 | train_acc=0.9995 | val_acc=0.9744
+  Epoch 16/20 | train_loss=0.7833 | train_acc=0.9995 | val_acc=0.9751
+  Epoch 17/20 | train_loss=0.7827 | train_acc=0.9995 | val_acc=0.9774
+  Epoch 18/20 | train_loss=0.7823 | train_acc=0.9995 | val_acc=0.9744
+  Epoch 19/20 | train_loss=0.7822 | train_acc=0.9995 | val_acc=0.9736
+  Epoch 20/20 | train_loss=0.7822 | train_acc=0.9995 | val_acc=0.9751
+  Best val acc (Without): 0.9774 | Final train-val gap: 0.0244
+
+==================================================
+  Ablation: Augmentation (ConvNeXt-Tiny, 20 epochs)
+==================================================
+  Augmentation       Val Acc   Train-Val Gap
+  ------------------------------------------
+  With                0.9751         0.0253
+  Without             0.9774         0.0244
+
+Evaluating: 100% 46/46 [00:01<00:00, 37.09it/s]
+
+============================================================
+EVALUATION METRICS
+============================================================
+
+Overall Accuracy: 0.9693
+Top-5 Accuracy: 0.9952
+
+--- Macro Averages ---
+Precision: 0.9633
+Recall:    0.9563
+F1-Score:  0.9577
+
+--- Weighted Averages ---
+Precision: 0.9707
+Recall:    0.9693
+F1-Score:  0.9688
+
+Per-class accuracy: 102 classes (see saved report)
+============================================================
+
+Saved to /content/261-mini-project/logs/eval/resnet50/
+Evaluating: 100% 46/46 [00:01<00:00, 33.21it/s]
+
+============================================================
+EVALUATION METRICS
+============================================================
+
+Overall Accuracy: 0.9720
+Top-5 Accuracy: 0.9952
+
+--- Macro Averages ---
+Precision: 0.9629
+Recall:    0.9626
+F1-Score:  0.9604
+
+--- Weighted Averages ---
+Precision: 0.9744
+Recall:    0.9720
+F1-Score:  0.9718
+
+Per-class accuracy: 102 classes (see saved report)
+============================================================
+
+Saved to /content/261-mini-project/logs/eval/efficientnet_b2/
+Evaluating: 100% 46/46 [00:01<00:00, 23.45it/s]
+
+============================================================
+EVALUATION METRICS
+============================================================
+
+Overall Accuracy: 0.9686
+Top-5 Accuracy: 0.9980
+
+--- Macro Averages ---
+Precision: 0.9591
+Recall:    0.9555
+F1-Score:  0.9541
+
+--- Weighted Averages ---
+Precision: 0.9721
+Recall:    0.9686
+F1-Score:  0.9684
+
+Per-class accuracy: 102 classes (see saved report)
+============================================================
+
+Saved to /content/261-mini-project/logs/eval/vit_b_16/
+Evaluating: 100% 46/46 [00:03<00:00, 12.22it/s]
+
+============================================================
+EVALUATION METRICS
+============================================================
+
+Overall Accuracy: 0.9693
+Top-5 Accuracy: 0.9980
+
+--- Macro Averages ---
+Precision: 0.9644
+Recall:    0.9571
+F1-Score:  0.9586
+
+--- Weighted Averages ---
+Precision: 0.9710
+Recall:    0.9693
+F1-Score:  0.9689
+
+Per-class accuracy: 102 classes (see saved report)
+============================================================
+
+Saved to /content/261-mini-project/logs/eval/convnext_tiny/
+Extracting features: 100% 46/46 [00:01<00:00, 41.74it/s]
+
+============================================================
+EVALUATION METRICS
+============================================================
+
+Overall Accuracy: 0.9018
+Top-5 Accuracy: 0.9809
+
+--- Macro Averages ---
+Precision: 0.9389
+Recall:    0.8411
+F1-Score:  0.8704
+
+--- Weighted Averages ---
+Precision: 0.9314
+Recall:    0.9018
+F1-Score:  0.9024
+
+Per-class accuracy: 102 classes (see saved report)
+============================================================
+
+Saved to /content/261-mini-project/logs/eval/svm_resnet_features/
+
+[6]
+43s
+
+
+
+Evaluating resnet50...
+  Accuracy: 0.9693  |  Top-5: 0.9952
+
+Evaluating efficientnet_b2...
+  Accuracy: 0.9720  |  Top-5: 0.9952
+
+Evaluating vit_b_16...
+  Accuracy: 0.9686  |  Top-5: 0.9980
+
+Evaluating convnext_tiny...
+  Accuracy: 0.9693  |  Top-5: 0.9980
+
+Evaluating svm_resnet_features...
+Extracting features: 100% 46/46 [00:00<00:00, 46.48it/s]
+  Accuracy: 0.9018  |  Top-5: 0.9809
+Saved fig1_overall_comparison
+Saved fig2_top1_top5
+Saved fig3_perclass_box
+Saved fig4 confusion matrices
+Saved fig5_macro_weighted
+Saved fig6_hardest_classes
+Saved fig7_perclass_heatmap
+Saved /content/261-mini-project/figures/table_main_results.tex
+
+All figures saved to /content/261-mini-project/figures/
+Predicting with resnet50...
+Predicting with efficientnet_b2...
+Predicting with vit_b_16...
+Predicting with convnext_tiny...
+Predicting with svm_resnet_features...
+
+Image agreement stats:
+  All 5 correct: 1280
+  4 correct:     122
+  3 correct:     30
+  2 correct:     10
+  1 correct:     11
+  All wrong:     13
+/content/261-mini-project/model/generate_qualitative.py:213: UserWarning: Glyph 10003 (\N{CHECK MARK}) missing from font(s) DejaVu Serif.
+  fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.pdf")
+/content/261-mini-project/model/generate_qualitative.py:213: UserWarning: Glyph 10007 (\N{BALLOT X}) missing from font(s) DejaVu Serif.
+  fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.pdf")
+/content/261-mini-project/model/generate_qualitative.py:214: UserWarning: Glyph 10003 (\N{CHECK MARK}) missing from font(s) DejaVu Serif.
+  fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.png")
+/content/261-mini-project/model/generate_qualitative.py:214: UserWarning: Glyph 10007 (\N{BALLOT X}) missing from font(s) DejaVu Serif.
+  fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.png")
+Saved to /content/261-mini-project/figures/fig_qualitative_comparison.pdf
+
+
+
+\begin{table}[t]
+\centering
+\caption{Test set performance of all models on Caltech-101.}
+\label{tab:main_results}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Model & Acc. (\%) & Top-5 (\%) & Prec. & Rec. & F1 \\
+\midrule
+  ResNet-50 & 96.93 & 99.52 & 0.9633 & 0.9563 & 0.9577 \\
+  EfficientNet-B2 & \textbf{97.20} & 99.52 & 0.9629 & 0.9626 & 0.9604 \\
+  ViT-B/16 & 96.86 & 99.80 & 0.9591 & 0.9555 & 0.9541 \\
+  ConvNeXt-Tiny & 96.93 & 99.80 & 0.9644 & 0.9571 & 0.9586 \\
+  SVM+ResNet-18 & 90.18 & 98.09 & 0.9389 & 0.8411 & 0.8704 \\
+\bottomrule
+\end{tabular}
+\end{table}

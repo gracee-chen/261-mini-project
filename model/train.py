@@ -148,6 +148,7 @@ def main():
     # Per-model default learning rates (ViT needs lower lr)
     _DEFAULT_LR = {
         "vit_b_16":        (2e-5, 2e-4),
+        "eva02_small":     (2e-5, 2e-4),
         "resnet50":        (1e-4, 1e-3),
         "efficientnet_b2": (1e-4, 1e-3),
         "convnext_tiny":   (1e-4, 1e-3),

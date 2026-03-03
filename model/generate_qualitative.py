@@ -1,5 +1,5 @@
 """
-Generate qualitative comparison figure: 5 rows (models) x 6 columns (test images).
+Generate qualitative comparison figure: 6 rows (models) x 8 columns (test images).
 Compact layout for paper front page. Maximizes visible disagreement between models.
 
 Usage: cd model/ && python generate_qualitative.py
@@ -28,10 +28,10 @@ from models.svm_classifier import FeatureExtractor
 FIGURE_DIR = _PROJECT_ROOT / "figures"
 FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 
-MODEL_NAMES = ["resnet50", "efficientnet_b2", "vit_b_16", "convnext_tiny", "svm_resnet_features"]
-DISPLAY_NAMES = ["ResNet-50", "EffNet-B2", "ViT-B/16", "ConvNeXt", "SVM"]
+MODEL_NAMES = ["resnet50", "efficientnet_b2", "vit_b_16", "convnext_tiny", "eva02_small", "svm_resnet_features"]
+DISPLAY_NAMES = ["ResNet-50", "EffNet-B2", "ViT-B/16", "ConvNeXt", "EVA-02-S", "SVM"]
 # Index of DL-only models (exclude SVM for disagreement scoring)
-DL_INDICES = [0, 1, 2, 3]
+DL_INDICES = [0, 1, 2, 3, 4]
 
 NUM_COLS = 8
 
@@ -100,13 +100,15 @@ def get_all_predictions(device):
 
 def select_images(y_true, all_preds, n=NUM_COLS):
     """Select images that maximize visible disagreement across models."""
-    pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)  # (5, N)
-    correct_matrix = (pred_matrix == y_true[None, :])  # (5, N)
-    n_correct_all = correct_matrix.sum(axis=0)  # how many of 5 models correct
+    n_models = len(MODEL_NAMES)
+    pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)  # (n_models, N)
+    correct_matrix = (pred_matrix == y_true[None, :])  # (n_models, N)
+    n_correct_all = correct_matrix.sum(axis=0)  # how many models correct
 
-    # DL-only correctness (4 DL models, excluding SVM)
-    dl_correct = correct_matrix[DL_INDICES, :]  # (4, N)
+    # DL-only correctness (exclude SVM)
+    dl_correct = correct_matrix[DL_INDICES, :]  # (n_dl, N)
     n_dl_correct = dl_correct.sum(axis=0)
+    n_dl = len(DL_INDICES)
 
     # Count unique predictions per image (more unique = more disagreement)
     n_unique_preds = np.array([len(set(pred_matrix[:, i])) for i in range(len(y_true))])
@@ -114,8 +116,8 @@ def select_images(y_true, all_preds, n=NUM_COLS):
     rng = np.random.default_rng(42)
     selected = []
 
-    # --- Column 1: all 5 models correct (easy case, for contrast) ---
-    easy = np.where(n_correct_all == 5)[0]
+    # --- Column 1: all models correct (easy case, for contrast) ---
+    easy = np.where(n_correct_all == n_models)[0]
     if len(easy) > 0:
         selected.append(rng.choice(easy, 1)[0])
 
@@ -128,7 +130,7 @@ def select_images(y_true, all_preds, n=NUM_COLS):
         selected.extend(top_idx[:3])
 
     # --- Column 5: only SVM wrong, all DL correct ---
-    svm_only_wrong = np.where((n_dl_correct == 4) & (n_correct_all == 4))[0]
+    svm_only_wrong = np.where((n_dl_correct == n_dl) & (n_correct_all == n_dl))[0]
     if len(svm_only_wrong) > 0:
         pool = [i for i in svm_only_wrong if i not in selected]
         if pool:
@@ -238,9 +240,10 @@ def generate_figure(y_true, all_preds, test_ds, class_names, indices):
     print("\nSelected images breakdown:")
     for col, idx in enumerate(indices):
         n_ok = correct_matrix[:, idx].sum()
-        models_ok = [DISPLAY_NAMES[r] for r in range(5) if correct_matrix[r, idx]]
+        n_total = len(MODEL_NAMES)
+        models_ok = [DISPLAY_NAMES[r] for r in range(n_total) if correct_matrix[r, idx]]
         gt_name = class_names[y_true[idx]]
-        print(f"  Col {col+1}: GT={gt_name}, {n_ok}/5 correct ({', '.join(models_ok) or 'none'})")
+        print(f"  Col {col+1}: GT={gt_name}, {n_ok}/{n_total} correct ({', '.join(models_ok) or 'none'})")
 
     fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.pdf")
     fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.png")
@@ -260,9 +263,10 @@ if __name__ == "__main__":
     pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)
     correct_matrix = (pred_matrix == y_true[None, :])
     n_correct = correct_matrix.sum(axis=0)
+    n_models = len(MODEL_NAMES)
     print(f"\nImage agreement stats:")
-    for k in [5, 4, 3, 2, 1, 0]:
-        label = "All 5 correct" if k == 5 else ("All wrong" if k == 0 else f"{k} correct")
+    for k in range(n_models, -1, -1):
+        label = f"All {n_models} correct" if k == n_models else ("All wrong" if k == 0 else f"{k} correct")
         print(f"  {label:>15}: {(n_correct==k).sum()}")
 
     indices = select_images(y_true, all_preds, n=NUM_COLS)
