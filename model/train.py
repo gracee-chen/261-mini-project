@@ -13,7 +13,7 @@ import torch.nn as nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 from torch.nn.utils import clip_grad_norm_
-from tqdm import tqdm
+
 
 from dataset import get_dataloaders, get_data_root
 from models import build_model, get_model_names, get_param_groups
@@ -36,7 +36,7 @@ def train_epoch(
     model.train()
     total_loss = 0.0
     amp_dtype = torch.float16 if device.type == "cuda" else torch.bfloat16
-    for imgs, labels in tqdm(loader, desc="Train", leave=False):
+    for imgs, labels in loader:
         imgs, labels = imgs.to(device), labels.to(device)
         optimizer.zero_grad()
 
@@ -93,34 +93,23 @@ def train_svm_model(args):
     for p in extractor.parameters():
         p.requires_grad = False
 
-    print("Extracting train features...")
     X_train, y_train = extract_features(train_loader, device, extractor=extractor)
-    print("Extracting val features...")
     X_val, y_val = extract_features(val_loader, device, extractor=extractor)
-    print("Extracting test features...")
     X_test, y_test = extract_features(test_loader, device, extractor=extractor)
 
-    print(f"Train: {X_train.shape}, Val: {X_val.shape}, Test: {X_test.shape}")
-
-    print("Training SVM...")
     svm, scaler = train_svm(X_train, y_train, X_val, y_val, C=1.0, kernel="rbf")
 
     val_acc = evaluate_svm(svm, scaler, X_val, y_val)
     test_acc = evaluate_svm(svm, scaler, X_test, y_test)
-
-    print(f"Val accuracy: {val_acc:.4f}")
-    print(f"Test accuracy: {test_acc:.4f}")
+    print(f"SVM | val={val_acc:.4f} | test={test_acc:.4f}")
 
     ckpt_dir = args.checkpoint_dir / "svm_resnet_features"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump({"svm": svm, "scaler": scaler}, ckpt_dir / "svm.joblib")
 
-    # Save history for plotting
     history = {"val_acc": [val_acc], "train_loss": [0.0], "val_loss": [0.0]}
     with open(ckpt_dir / "history.json", "w") as f:
         json.dump(history, f)
-
-    print(f"Saved to {ckpt_dir / 'svm.joblib'}")
 
 
 def main():
@@ -193,9 +182,7 @@ def main():
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     history = {"train_loss": [], "val_acc": [], "val_loss": []}
 
-    print(f"Training {args.model} | backbone_lr={args.lr_backbone} head_lr={args.lr_head} "
-          f"| label_smoothing={args.label_smoothing} | warmup={warmup_epochs} epochs "
-          f"| grad_clip={args.max_grad_norm} | amp={args.use_amp}")
+    print(f"Training {args.model} ...")
 
     for epoch in range(args.epochs):
         train_loss = train_epoch(
@@ -209,9 +196,7 @@ def main():
         history["val_acc"].append(val_acc)
         history["val_loss"].append(val_loss)
 
-        # Log per-group learning rates
-        lr_info = " | ".join(f"lr_{g.get('name', i)}={g['lr']:.2e}" for i, g in enumerate(optimizer.param_groups))
-        print(f"Epoch {epoch+1}/{args.epochs} | train_loss={train_loss:.4f} | val_acc={val_acc:.4f} | val_loss={val_loss:.4f} | {lr_info}")
+        print(f"  E{epoch+1:02d} | loss={train_loss:.4f} | val={val_acc:.4f}")
 
         if val_acc > best_acc:
             best_acc = val_acc
@@ -223,15 +208,13 @@ def main():
         else:
             patience_counter += 1
             if patience_counter >= args.patience:
-                print(f"Early stopping at epoch {epoch+1} (no improvement for {args.patience} epochs)")
+                print(f"  Early stop at E{epoch+1}")
                 break
 
-    # Save training history for plotting
     with open(ckpt_dir / "history.json", "w") as f:
         json.dump(history, f)
 
-    print(f"\nBest val accuracy: {best_acc:.4f}")
-    print(f"Checkpoint saved to {ckpt_dir / 'best.pt'}")
+    print(f"  Best val: {best_acc:.4f}")
 
 
 if __name__ == "__main__":

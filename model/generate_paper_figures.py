@@ -80,7 +80,7 @@ def evaluate_all():
 
     results = {}
     for model_name in MODEL_NAMES:
-        print(f"\nEvaluating {model_name}...")
+        print(f"  {model_name}...", end=" ")
 
         if model_name == "svm_resnet_features":
             ckpt_path = CHECKPOINT_DIR / "svm_resnet_features" / "svm.joblib"
@@ -115,7 +115,7 @@ def evaluate_all():
             "per_class_accuracy": per_class_acc,
             "confusion_matrix": cm,
         }
-        print(f"  Accuracy: {acc:.4f}")
+        print(f"{acc:.4f}")
 
     return results, class_names, num_classes
 
@@ -173,7 +173,7 @@ def fig_acc_loss_epochs():
     fig.savefig(FIGURE_DIR / "fig_acc_loss_epochs.pdf")
     fig.savefig(FIGURE_DIR / "fig_acc_loss_epochs.png")
     plt.close(fig)
-    print("Saved fig_acc_loss_epochs")
+    print("  fig_acc_loss_epochs")
 
 
 # ================================================================
@@ -219,7 +219,7 @@ def fig_perclass_all(results, class_names):
     fig.savefig(FIGURE_DIR / "fig_perclass_all.pdf")
     fig.savefig(FIGURE_DIR / "fig_perclass_all.png")
     plt.close(fig)
-    print("Saved fig_perclass_all")
+    print("  fig_perclass_all")
 
 
 # ================================================================
@@ -262,17 +262,18 @@ def fig_cm_all(results, class_names):
     fig.savefig(FIGURE_DIR / "fig_cm_all.pdf")
     fig.savefig(FIGURE_DIR / "fig_cm_all.png")
     plt.close(fig)
-    print("Saved fig_cm_all")
+    print("  fig_cm_all")
 
 
 # ================================================================
 # main
 # ================================================================
 if __name__ == "__main__":
+    print("Evaluating models...")
     results, class_names, num_classes = evaluate_all()
 
     fig_acc_loss_epochs()
     fig_perclass_all(results, class_names)
     fig_cm_all(results, class_names)
 
-    print(f"\nAll figures saved to {FIGURE_DIR}/")
+    print("Done. Figures saved to figures/")

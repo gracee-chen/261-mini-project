@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from torchvision import models
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
-from tqdm import tqdm
+
 
 class FeatureExtractor(nn.Module):
     """ResNet-18 without final FC, for feature extraction."""
@@ -43,7 +43,7 @@ def extract_features(
     all_labels = []
 
     with torch.no_grad():
-        for imgs, labels in tqdm(loader, desc="Extracting features"):
+        for imgs, labels in loader:
             imgs = imgs.to(device)
             feats = extractor(imgs).cpu().numpy()
             all_features.append(feats)
@@ -69,7 +69,7 @@ def train_svm(
     X_train_scaled = scaler.fit_transform(X_train)
     X_val_scaled = scaler.transform(X_val)
 
-    svm = SVC(C=C, kernel=kernel, gamma="scale", probability=True, verbose=True)
+    svm = SVC(C=C, kernel=kernel, gamma="scale", probability=True, verbose=False)
     svm.fit(X_train_scaled, y_train)
     return svm, scaler
 

@@ -70,7 +70,7 @@ def get_all_predictions(device):
     all_preds = {}
 
     for model_name in MODEL_NAMES:
-        print(f"Predicting with {model_name}...")
+        print(f"  {model_name}...", end=" ", flush=True)
         if model_name == "svm_resnet_features":
             ckpt_path = _PROJECT_ROOT / "checkpoints" / "svm_resnet_features" / "svm.joblib"
             data = joblib.load(ckpt_path)
@@ -94,6 +94,7 @@ def get_all_predictions(device):
                     preds_list.extend(model(imgs.to(device)).argmax(1).cpu().numpy())
             y_pred = np.array(preds_list)
         all_preds[model_name] = y_pred
+        print("ok")
 
     return y_true, all_preds, test_ds, class_names
 
@@ -234,21 +235,9 @@ def generate_figure(y_true, all_preds, test_ds, class_names, indices):
 
     fig.subplots_adjust(hspace=0.10, wspace=0.08)
 
-    # Print selection info
-    pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)
-    correct_matrix = (pred_matrix == y_true[None, :])
-    print("\nSelected images breakdown:")
-    for col, idx in enumerate(indices):
-        n_ok = correct_matrix[:, idx].sum()
-        n_total = len(MODEL_NAMES)
-        models_ok = [DISPLAY_NAMES[r] for r in range(n_total) if correct_matrix[r, idx]]
-        gt_name = class_names[y_true[idx]]
-        print(f"  Col {col+1}: GT={gt_name}, {n_ok}/{n_total} correct ({', '.join(models_ok) or 'none'})")
-
     fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.pdf")
     fig.savefig(FIGURE_DIR / "fig_qualitative_comparison.png")
     plt.close(fig)
-    print(f"\nSaved to {FIGURE_DIR / 'fig_qualitative_comparison.pdf'}")
 
 
 if __name__ == "__main__":
@@ -258,16 +247,8 @@ if __name__ == "__main__":
         else "cpu"
     )
 
+    print("Generating qualitative comparison...")
     y_true, all_preds, test_ds, class_names = get_all_predictions(device)
-
-    pred_matrix = np.stack([all_preds[m] for m in MODEL_NAMES], axis=0)
-    correct_matrix = (pred_matrix == y_true[None, :])
-    n_correct = correct_matrix.sum(axis=0)
-    n_models = len(MODEL_NAMES)
-    print(f"\nImage agreement stats:")
-    for k in range(n_models, -1, -1):
-        label = f"All {n_models} correct" if k == n_models else ("All wrong" if k == 0 else f"{k} correct")
-        print(f"  {label:>15}: {(n_correct==k).sum()}")
-
     indices = select_images(y_true, all_preds, n=NUM_COLS)
     generate_figure(y_true, all_preds, test_ds, class_names, indices)
+    print("Done. Saved fig_qualitative_comparison.pdf")

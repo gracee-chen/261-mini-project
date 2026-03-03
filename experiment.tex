@@ -1,12 +1,12 @@
 \section{Experiments}
 
-We evaluate six classification methods on Caltech-101~\citep{fei2004learning}: ResNet-50~\citep{he2016deep}, EfficientNet-B2~\citep{tan2019efficientnet}, ViT-B/16~\citep{dosovitskiy2020image}, ConvNeXt-Tiny~\citep{liu2022convnet}, EVA-02-Small~\citep{fang2023eva02}, and an SVM with frozen ResNet-18 features~\citep{donahue2014decaf}.
+We evaluate six classification methods on Caltech-101~\citep{fei2004learning}: ResNet-50~\citep{he2016deep}, EfficientNet-B2~\citep{tan2019efficientnet}, ViT-B/16~\citep{dosovitskiy2020image}, ConvNeXt-Tiny~\citep{liu2022convnet}, EVA-02-Small~\citep{fang2024eva}, and an SVM with frozen ResNet-18 features~\citep{donahue2014decaf}.
 
 \subsection{Experimental Setup}
 
 \textbf{Dataset.} Caltech-101 contains 9{,}144 images across 102 categories (101 object classes plus background). We apply a stratified 70/15/15 split, yielding 6{,}352 / 1{,}326 / 1{,}466 samples for train / validation / test.
 
-\textbf{Implementation.} All deep models use ImageNet-pretrained weights (EVA-02-Small uses MIM-pretrained weights on IN-22k, fine-tuned on IN-1k) and are fine-tuned with AdamW~\citep{loshchilov2019decoupled} ($\lambda{=}10^{-4}$) using differential learning rates (backbone $\eta_{\text{bb}}{=}10^{-4}$, head $\eta_{\text{head}}{=}10^{-3}$; ViT and EVA-02 use $2{\times}10^{-5}$ / $2{\times}10^{-4}$). We apply linear warmup (5 epochs) followed by cosine annealing over 30 epochs, with early stopping (patience 5). Label smoothing ($\epsilon{=}0.1$), gradient clipping (max norm 1.0), and standard augmentation (random crop, horizontal flip, color jitter, random erasing) are used throughout. The SVM baseline extracts 512-dim features from a frozen ResNet-18 and trains an RBF-kernel SVM ($C{=}1$, $\gamma{=}\text{scale}$). All experiments use batch size 32 on a single NVIDIA GPU.
+\textbf{Implementation.} All deep models use ImageNet-pretrained weights (EVA-02-Small uses MIM-pretrained weights on IN-22k, fine-tuned on IN-1k) and are fine-tuned with AdamW~\citep{loshchilov2017decoupled} ($\lambda{=}10^{-4}$) using differential learning rates (backbone $\eta_{\text{bb}}{=}10^{-4}$, head $\eta_{\text{head}}{=}10^{-3}$; ViT and EVA-02 use $2{\times}10^{-5}$ / $2{\times}10^{-4}$). We apply linear warmup (5 epochs) followed by cosine annealing over 30 epochs, with early stopping (patience 5). Label smoothing ($\epsilon{=}0.1$), gradient clipping (max norm 1.0), and standard augmentation (random crop, horizontal flip, color jitter, random erasing) are used throughout. The SVM baseline extracts 512-dim features from a frozen ResNet-18 and trains an RBF-kernel SVM ($C{=}1$, $\gamma{=}\text{scale}$). All experiments use batch size 32 on a single NVIDIA GPU.
 
 \textbf{Evaluation metrics.} We report: (1)~overall accuracy, (2)~top-5 accuracy, (3)~macro- and weighted-averaged precision, recall, and F1-score, (4)~per-class accuracy, and (5)~confusion matrices.
 

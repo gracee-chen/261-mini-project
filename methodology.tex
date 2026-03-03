@@ -26,7 +26,7 @@ with a minimum of one training sample per class enforced via the $\max(1, \cdot)
 
 \subsection{Model Architectures}
 
-We benchmark five methods spanning three paradigms: convolutional networks, vision transformers, and classical machine learning. All deep models use ImageNet-pretrained weights; only the final classification head is replaced with a new linear layer mapping to $C = 102$ classes.
+We benchmark six methods spanning three paradigms: convolutional networks, vision transformers, and classical machine learning. All deep models use ImageNet-pretrained weights (or MIM-pretrained for EVA-02); only the final classification head is replaced with a new linear layer mapping to $C = 102$ classes.
 
 \begin{itemize}[nosep,leftmargin=*]
 \item \textbf{ResNet-50}~\citep{he2016deep} learns residual mappings $\mathcal{F}(\mathbf{x}) + \mathbf{x}$ via skip connections. We load \texttt{IMAGENET1K\_V2} weights and replace the final \texttt{fc} layer ($2048 \to C$).
@@ -37,12 +37,14 @@ We benchmark five methods spanning three paradigms: convolutional networks, visi
 
 \item \textbf{ConvNeXt-Tiny}~\citep{liu2022convnet} modernizes standard ConvNets with design elements from transformers (larger kernels, layer normalization, inverted bottlenecks). We load \texttt{IMAGENET1K\_V1} weights and replace \texttt{classifier[2]} ($768 \to C$).
 
+\item \textbf{EVA-02-Small}~\citep{fang2024eva} is a vision transformer pretrained via masked image modelling (MIM) on ImageNet-22k and fine-tuned on ImageNet-1k. We load \texttt{eva02\_small\_patch14\_224} from the \texttt{timm} library and replace the classification head ($384 \to C$).
+
 \item \textbf{SVM + ResNet-18 features}~\citep{donahue2014decaf} serves as a classical baseline. We extract 512-dimensional feature vectors from a frozen, ImageNet-pretrained ResNet-18 by removing its final FC layer and global-average pooling the output. Features are standardized with zero mean and unit variance, then fed to an RBF-kernel SVM ($C = 1$, $\gamma = \text{scale}$). No end-to-end fine-tuning is performed.
 \end{itemize}
 
 \subsection{Training Details}
 
-\textbf{Differential learning rates.} For each deep model, we partition parameters into backbone (pretrained) and head (randomly initialized) groups with separate learning rates. For ResNet-50, EfficientNet-B2, and ConvNeXt-Tiny we use $\eta_{\text{bb}} = 10^{-4}$ and $\eta_{\text{head}} = 10^{-3}$. For ViT-B/16, which is more sensitive to learning rate, we use $\eta_{\text{bb}} = 2 \times 10^{-5}$ and $\eta_{\text{head}} = 2 \times 10^{-4}$. All models are optimized with AdamW~\citep{loshchilov2019decoupled} ($\lambda = 10^{-4}$).
+\textbf{Differential learning rates.} For each deep model, we partition parameters into backbone (pretrained) and head (randomly initialized) groups with separate learning rates. For \texttt{ResNet-50}, \texttt{EfficientNet-B2}, and \texttt{ConvNeXt-Tiny} we use $\eta_{\text{bb}} = 10^{-4}$ and $\eta_{\text{head}} = 10^{-3}$. For \texttt{ViT-B/16} and \texttt{EVA-02-Small}, which are more sensitive to learning rate, we use $\eta_{\text{bb}} = 2 \times 10^{-5}$ and $\eta_{\text{head}} = 2 \times 10^{-4}$. All models are optimized with AdamW~\citep{loshchilov2017decoupled} ($\lambda = 10^{-4}$).
 
 \textbf{Learning rate schedule.} We apply a linear warmup over the first $T_w = 5$ epochs (ramping from $0.01 \eta$ to $\eta$), followed by cosine annealing:
 \begin{equation}
