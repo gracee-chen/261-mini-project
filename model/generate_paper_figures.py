@@ -92,7 +92,7 @@ def evaluate_all():
             y_true, y_pred = np.array(y_true), np.array(y_pred)
         else:
             ckpt_path = CHECKPOINT_DIR / model_name / "best.pt"
-            model = build_model(model_name, num_classes)
+            model = build_model(model_name, num_classes, pretrained=False)
             ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
             model.load_state_dict(ckpt["model"])
             model = model.to(device).eval()

@@ -84,7 +84,7 @@ def get_all_predictions(device):
             y_pred = svm.predict(scaler.transform(X_test))
         else:
             ckpt_path = _PROJECT_ROOT / "checkpoints" / model_name / "best.pt"
-            model = build_model(model_name, num_classes)
+            model = build_model(model_name, num_classes, pretrained=False)
             ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
             model.load_state_dict(ckpt["model"])
             model = model.to(device).eval()

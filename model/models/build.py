@@ -8,35 +8,40 @@ from torchvision import models
 import timm
 
 
-def build_model(name: str, num_classes: int) -> nn.Module:
-    """Build a classification model with pretrained weights."""
+def build_model(name: str, num_classes: int, pretrained: bool = True) -> nn.Module:
+    """Build a classification model, optionally with pretrained weights."""
     if name == "resnet50":
-        m = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
+        w = models.ResNet50_Weights.IMAGENET1K_V2 if pretrained else None
+        m = models.resnet50(weights=w)
         m.fc = nn.Linear(m.fc.in_features, num_classes)
         return m
 
     if name == "efficientnet_b2":
-        m = models.efficientnet_b2(weights=models.EfficientNet_B2_Weights.IMAGENET1K_V1)
+        w = models.EfficientNet_B2_Weights.IMAGENET1K_V1 if pretrained else None
+        m = models.efficientnet_b2(weights=w)
         m.classifier[1] = nn.Linear(m.classifier[1].in_features, num_classes)
         return m
 
     if name == "vit_b_16":
-        m = models.vit_b_16(weights=models.ViT_B_16_Weights.IMAGENET1K_V1)
+        w = models.ViT_B_16_Weights.IMAGENET1K_V1 if pretrained else None
+        m = models.vit_b_16(weights=w)
         m.heads.head = nn.Linear(m.heads.head.in_features, num_classes)
         return m
 
     if name == "convnext_tiny":
-        m = models.convnext_tiny(weights=models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1)
+        w = models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1 if pretrained else None
+        m = models.convnext_tiny(weights=w)
         m.classifier[2] = nn.Linear(m.classifier[2].in_features, num_classes)
         return m
 
     if name == "eva02_small":
-        # EVA-02 Small (IJCV 2024): MIM-pretrained on IN-22k, fine-tuned on IN-1k
-        m = timm.create_model(
-            "eva02_small_patch14_224.mim_in22k_ft_in1k",
-            pretrained=True,
-            num_classes=num_classes,
-        )
+        # EVA-02 Small (IJCV 2024) — pick best available pretrained tag
+        available = timm.list_pretrained("eva02_small*")
+        if available and pretrained:
+            tag = available[0]  # use first available pretrained config
+        else:
+            tag = "eva02_small_patch14_224"
+        m = timm.create_model(tag, pretrained=pretrained, num_classes=num_classes)
         return m
 
     raise ValueError(f"Unknown model: {name}")
