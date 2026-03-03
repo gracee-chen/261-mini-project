@@ -202,6 +202,10 @@ def generate_figure(y_true, all_preds, test_ds, class_names, indices):
             is_correct = (pred == gt)
 
             border_color = GREEN if is_correct else RED
+            # White inner padding between image and colored border
+            ax.patch.set_facecolor("white")
+            ax.set_xlim(-4, IMG_SIZE + 4)
+            ax.set_ylim(IMG_SIZE + 4, -4)
             for spine in ax.spines.values():
                 spine.set_edgecolor(border_color)
                 spine.set_linewidth(2.5)
