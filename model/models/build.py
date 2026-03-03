@@ -8,7 +8,7 @@ from torchvision import models
 import timm
 
 
-def build_model(name: str, num_classes: int, pretrained: bool = True) -> nn.Module:
+def build_model(name: str, num_classes: int, pretrained: bool = True, img_size: int | None = None) -> nn.Module:
     """Build a classification model, optionally with pretrained weights."""
     if name == "resnet50":
         w = models.ResNet50_Weights.IMAGENET1K_V2 if pretrained else None
@@ -41,7 +41,10 @@ def build_model(name: str, num_classes: int, pretrained: bool = True) -> nn.Modu
             tag = available[0]  # use first available pretrained config
         else:
             tag = "eva02_small_patch14_224"
-        m = timm.create_model(tag, pretrained=pretrained, num_classes=num_classes)
+        kwargs = {"pretrained": pretrained, "num_classes": num_classes}
+        if img_size is not None:
+            kwargs["img_size"] = img_size
+        m = timm.create_model(tag, **kwargs)
         return m
 
     raise ValueError(f"Unknown model: {name}")

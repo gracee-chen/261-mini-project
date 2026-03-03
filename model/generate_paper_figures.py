@@ -223,12 +223,12 @@ def fig_perclass_all(results, class_names):
 
 
 # ================================================================
-# Figure 3: Confusion matrices — 3 rows x 2 cols
+# Figure 3: Confusion matrices — 2 rows x 3 cols
 # ================================================================
 def fig_cm_all(results, class_names):
     n_models = len(MODEL_NAMES)
     n_classes = len(class_names)
-    nrows, ncols = 3, 2
+    nrows, ncols = 2, 3
 
     fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 4.0, nrows * 3.8))
 

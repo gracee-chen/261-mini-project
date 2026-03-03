@@ -42,7 +42,7 @@ def run(device: torch.device) -> dict[int, float]:
         )
         num_classes = len(train_loader.dataset.classes)
 
-        model = build_model(MODEL_NAME, num_classes).to(device)
+        model = build_model(MODEL_NAME, num_classes, img_size=size).to(device)
         param_groups = get_param_groups(model, MODEL_NAME, lr_backbone=LR_BACKBONE, lr_head=LR_HEAD)
         optimizer = AdamW(param_groups, weight_decay=1e-4)
         criterion = nn.CrossEntropyLoss(label_smoothing=LABEL_SMOOTHING)
