@@ -4,6 +4,7 @@ Usage: python train.py [--model resnet50|efficientnet_b2|vit_b_16|convnext_tiny|
 """
 
 import argparse
+import json
 from pathlib import Path
 
 import joblib
@@ -113,6 +114,12 @@ def train_svm_model(args):
     ckpt_dir = args.checkpoint_dir / "svm_resnet_features"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump({"svm": svm, "scaler": scaler}, ckpt_dir / "svm.joblib")
+
+    # Save history for plotting
+    history = {"val_acc": [val_acc], "train_loss": [0.0], "val_loss": [0.0]}
+    with open(ckpt_dir / "history.json", "w") as f:
+        json.dump(history, f)
+
     print(f"Saved to {ckpt_dir / 'svm.joblib'}")
 
 
@@ -183,6 +190,7 @@ def main():
     patience_counter = 0
     ckpt_dir = args.checkpoint_dir / args.model
     ckpt_dir.mkdir(parents=True, exist_ok=True)
+    history = {"train_loss": [], "val_acc": [], "val_loss": []}
 
     print(f"Training {args.model} | backbone_lr={args.lr_backbone} head_lr={args.lr_head} "
           f"| label_smoothing={args.label_smoothing} | warmup={warmup_epochs} epochs "
@@ -195,6 +203,10 @@ def main():
         )
         val_acc, val_loss = evaluate(model, val_loader, device)
         scheduler.step()
+
+        history["train_loss"].append(train_loss)
+        history["val_acc"].append(val_acc)
+        history["val_loss"].append(val_loss)
 
         # Log per-group learning rates
         lr_info = " | ".join(f"lr_{g.get('name', i)}={g['lr']:.2e}" for i, g in enumerate(optimizer.param_groups))
@@ -212,6 +224,10 @@ def main():
             if patience_counter >= args.patience:
                 print(f"Early stopping at epoch {epoch+1} (no improvement for {args.patience} epochs)")
                 break
+
+    # Save training history for plotting
+    with open(ckpt_dir / "history.json", "w") as f:
+        json.dump(history, f)
 
     print(f"\nBest val accuracy: {best_acc:.4f}")
     print(f"Checkpoint saved to {ckpt_dir / 'best.pt'}")
