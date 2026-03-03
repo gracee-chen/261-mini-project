@@ -13,7 +13,6 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from skimage.feature import hog
-from tqdm import tqdm
 
 from dataset import get_dataloaders
 from models.svm_classifier import FeatureExtractor, extract_features, train_svm, evaluate_svm
@@ -31,7 +30,7 @@ def extract_hog_features(loader: DataLoader) -> tuple[np.ndarray, np.ndarray]:
     all_features = []
     all_labels = []
 
-    for imgs, labels in tqdm(loader, desc="Extracting HOG features"):
+    for imgs, labels in loader:
         # imgs: (B, 3, H, W) tensor, already normalized — undo normalization isn't
         # strictly needed for HOG on grayscale, but we convert to [0,1] range first.
         imgs_np = imgs.numpy()

@@ -1,5 +1,5 @@
 """
-Ablation: Data augmentation — with vs without augmentation using ConvNeXt-Tiny.
+Ablation: Data augmentation — with vs without augmentation using EVA-02-Small.
 """
 
 import sys
@@ -21,12 +21,13 @@ from models import build_model, get_param_groups
 from train import train_epoch, evaluate
 
 
+MODEL_NAME = "eva02_small"
 EPOCHS = 20
 PATIENCE = 7
 WARMUP = 3
 LABEL_SMOOTHING = 0.1
-LR_BACKBONE = 1e-4
-LR_HEAD = 1e-3
+LR_BACKBONE = 2e-5
+LR_HEAD = 2e-4
 RESIZE = 256
 CROP = 224
 
@@ -54,8 +55,8 @@ def _train_variant(name: str, train_loader, val_loader, device: torch.device) ->
     print(f"{'='*50}")
 
     num_classes = len(train_loader.dataset.classes)
-    model = build_model("convnext_tiny", num_classes).to(device)
-    param_groups = get_param_groups(model, "convnext_tiny", lr_backbone=LR_BACKBONE, lr_head=LR_HEAD)
+    model = build_model(MODEL_NAME, num_classes).to(device)
+    param_groups = get_param_groups(model, MODEL_NAME, lr_backbone=LR_BACKBONE, lr_head=LR_HEAD)
     optimizer = AdamW(param_groups, weight_decay=1e-4)
     criterion = nn.CrossEntropyLoss(label_smoothing=LABEL_SMOOTHING)
 
@@ -116,7 +117,7 @@ def run(device: torch.device) -> dict[str, dict]:
 
 def print_table(results: dict[str, dict]):
     print(f"\n{'='*50}")
-    print("  Ablation: Augmentation (ConvNeXt-Tiny, 20 epochs)")
+    print("  Ablation: Augmentation (EVA-02-Small, 20 epochs)")
     print(f"{'='*50}")
     print(f"  {'Augmentation':<15} {'Val Acc':>10} {'Train-Val Gap':>15}")
     print(f"  {'-'*42}")

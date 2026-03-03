@@ -1,5 +1,5 @@
 """
-Ablation: Optimizer — SGD vs AdamW using ConvNeXt-Tiny.
+Ablation: Optimizer — SGD vs AdamW using EVA-02-Small.
 """
 
 import sys
@@ -19,6 +19,7 @@ from models import build_model, get_param_groups
 from train import train_epoch, evaluate
 
 
+MODEL_NAME = "eva02_small"
 EPOCHS = 10
 PATIENCE = 5
 WARMUP = 2
@@ -26,8 +27,8 @@ LABEL_SMOOTHING = 0.1
 
 # Per-optimizer tuned learning rates (fair comparison)
 OPTIMIZER_CONFIG = {
-    "AdamW": {"lr_backbone": 1e-4, "lr_head": 1e-3},
-    "SGD":   {"lr_backbone": 5e-3, "lr_head": 5e-2},
+    "AdamW": {"lr_backbone": 2e-5, "lr_head": 2e-4},
+    "SGD":   {"lr_backbone": 1e-3, "lr_head": 1e-2},
 }
 
 
@@ -38,8 +39,8 @@ def _train_with_optimizer(name: str, train_loader, val_loader, device: torch.dev
     print(f"{'='*50}")
 
     num_classes = len(train_loader.dataset.classes)
-    model = build_model("convnext_tiny", num_classes).to(device)
-    param_groups = get_param_groups(model, "convnext_tiny",
+    model = build_model(MODEL_NAME, num_classes).to(device)
+    param_groups = get_param_groups(model, MODEL_NAME,
                                     lr_backbone=cfg["lr_backbone"], lr_head=cfg["lr_head"])
 
     if name == "AdamW":
@@ -95,7 +96,7 @@ def run(device: torch.device) -> dict[str, float]:
 
 def print_table(results: dict[str, float]):
     print(f"\n{'='*50}")
-    print("  Ablation: Optimizer (ConvNeXt-Tiny, 10 epochs)")
+    print("  Ablation: Optimizer (EVA-02-Small, 10 epochs)")
     print(f"{'='*50}")
     print(f"  {'Optimizer':<12} {'Val Acc':>10}")
     print(f"  {'-'*22}")

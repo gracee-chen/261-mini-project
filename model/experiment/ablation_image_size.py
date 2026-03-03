@@ -1,5 +1,6 @@
 """
-Ablation: Input image size — 64×64 vs 128×128 using ConvNeXt-Tiny.
+Ablation: Input image size — 112×112 vs 224×224 using EVA-02-Small.
+Sizes are multiples of patch_size=14.
 """
 
 import sys
@@ -19,13 +20,14 @@ from models import build_model, get_param_groups
 from train import train_epoch, evaluate
 
 
-SIZES = [64, 128]
+MODEL_NAME = "eva02_small"
+SIZES = [112, 224]
 EPOCHS = 10
 PATIENCE = 5
 WARMUP = 2
 LABEL_SMOOTHING = 0.1
-LR_BACKBONE = 1e-4
-LR_HEAD = 1e-3
+LR_BACKBONE = 2e-5
+LR_HEAD = 2e-4
 
 
 def run(device: torch.device) -> dict[int, float]:
@@ -40,8 +42,8 @@ def run(device: torch.device) -> dict[int, float]:
         )
         num_classes = len(train_loader.dataset.classes)
 
-        model = build_model("convnext_tiny", num_classes).to(device)
-        param_groups = get_param_groups(model, "convnext_tiny", lr_backbone=LR_BACKBONE, lr_head=LR_HEAD)
+        model = build_model(MODEL_NAME, num_classes).to(device)
+        param_groups = get_param_groups(model, MODEL_NAME, lr_backbone=LR_BACKBONE, lr_head=LR_HEAD)
         optimizer = AdamW(param_groups, weight_decay=1e-4)
         criterion = nn.CrossEntropyLoss(label_smoothing=LABEL_SMOOTHING)
 
@@ -81,7 +83,7 @@ def run(device: torch.device) -> dict[int, float]:
 
 def print_table(results: dict[int, float]):
     print(f"\n{'='*50}")
-    print("  Ablation: Image Size (ConvNeXt-Tiny, 10 epochs)")
+    print("  Ablation: Image Size (EVA-02-Small, 10 epochs)")
     print(f"{'='*50}")
     print(f"  {'Size':<12} {'Val Acc':>10}")
     print(f"  {'-'*22}")
