@@ -1,0 +1,429 @@
+/content/261-mini-project/model
+Downloading: "https://download.pytorch.org/models/resnet50-11ad3fa6.pth" to /root/.cache/torch/hub/checkpoints/resnet50-11ad3fa6.pth
+100% 97.8M/97.8M [00:00<00:00, 213MB/s]
+Training resnet50 ...
+  E01 | loss=4.5253 | val=0.1780
+  E02 | loss=2.8487 | val=0.8258
+  E03 | loss=1.2393 | val=0.9442
+  E04 | loss=0.9924 | val=0.9495
+  E05 | loss=0.9263 | val=0.9480
+  E06 | loss=0.8987 | val=0.9449
+  E07 | loss=0.8865 | val=0.9517
+  E08 | loss=0.8647 | val=0.9555
+  E09 | loss=0.8545 | val=0.9525
+  E10 | loss=0.8373 | val=0.9570
+  E11 | loss=0.8361 | val=0.9600
+  E12 | loss=0.8257 | val=0.9525
+  E13 | loss=0.8240 | val=0.9585
+  E14 | loss=0.8139 | val=0.9608
+  E15 | loss=0.8182 | val=0.9585
+  E16 | loss=0.8090 | val=0.9608
+  E17 | loss=0.8047 | val=0.9608
+  E18 | loss=0.8035 | val=0.9623
+  E19 | loss=0.8063 | val=0.9668
+  E20 | loss=0.7974 | val=0.9653
+  E21 | loss=0.7987 | val=0.9676
+  E22 | loss=0.7965 | val=0.9653
+  E23 | loss=0.7981 | val=0.9676
+  E24 | loss=0.7968 | val=0.9691
+  E25 | loss=0.7951 | val=0.9676
+  E26 | loss=0.7915 | val=0.9691
+  E27 | loss=0.7932 | val=0.9698
+  E28 | loss=0.7902 | val=0.9698
+  E29 | loss=0.7905 | val=0.9683
+  E30 | loss=0.7902 | val=0.9713
+  Best val: 0.9713
+Downloading: "https://download.pytorch.org/models/efficientnet_b2_rwightman-c35c1473.pth" to /root/.cache/torch/hub/checkpoints/efficientnet_b2_rwightman-c35c1473.pth
+100% 35.2M/35.2M [00:00<00:00, 218MB/s]
+Training efficientnet_b2 ...
+  E01 | loss=4.5700 | val=0.0882
+  E02 | loss=3.2483 | val=0.7934
+  E03 | loss=1.5340 | val=0.9223
+  E04 | loss=1.0682 | val=0.9419
+  E05 | loss=0.9736 | val=0.9525
+  E06 | loss=0.9250 | val=0.9540
+  E07 | loss=0.9026 | val=0.9623
+  E08 | loss=0.8775 | val=0.9608
+  E09 | loss=0.8720 | val=0.9661
+  E10 | loss=0.8635 | val=0.9638
+  E11 | loss=0.8582 | val=0.9668
+  E12 | loss=0.8518 | val=0.9676
+  E13 | loss=0.8459 | val=0.9683
+  E14 | loss=0.8417 | val=0.9713
+  E15 | loss=0.8364 | val=0.9676
+  E16 | loss=0.8311 | val=0.9744
+  E17 | loss=0.8313 | val=0.9706
+  E18 | loss=0.8276 | val=0.9661
+  E19 | loss=0.8234 | val=0.9676
+  E20 | loss=0.8204 | val=0.9706
+  E21 | loss=0.8194 | val=0.9706
+  Early stop at E21
+  Best val: 0.9744
+Downloading: "https://download.pytorch.org/models/vit_b_16-c867db91.pth" to /root/.cache/torch/hub/checkpoints/vit_b_16-c867db91.pth
+100% 330M/330M [00:01<00:00, 235MB/s]
+Training vit_b_16 ...
+  E01 | loss=4.6316 | val=0.0988
+  E02 | loss=3.4448 | val=0.6357
+  E03 | loss=1.9328 | val=0.9110
+  E04 | loss=1.1290 | val=0.9578
+  E05 | loss=0.9313 | val=0.9563
+  E06 | loss=0.8774 | val=0.9578
+  E07 | loss=0.8458 | val=0.9661
+  E08 | loss=0.8329 | val=0.9570
+  E09 | loss=0.8204 | val=0.9691
+  E10 | loss=0.8142 | val=0.9615
+  E11 | loss=0.8059 | val=0.9676
+  E12 | loss=0.8070 | val=0.9691
+  E13 | loss=0.8000 | val=0.9683
+  E14 | loss=0.7986 | val=0.9691
+  Early stop at E14
+  Best val: 0.9691
+Downloading: "https://download.pytorch.org/models/convnext_tiny-983f1562.pth" to /root/.cache/torch/hub/checkpoints/convnext_tiny-983f1562.pth
+100% 109M/109M [00:00<00:00, 235MB/s] 
+Training convnext_tiny ...
+  E01 | loss=4.6236 | val=0.0611
+  E02 | loss=2.6350 | val=0.8997
+  E03 | loss=1.0999 | val=0.9600
+  E04 | loss=0.9170 | val=0.9608
+  E05 | loss=0.8718 | val=0.9668
+  E06 | loss=0.8524 | val=0.9630
+  E07 | loss=0.8401 | val=0.9615
+  E08 | loss=0.8299 | val=0.9691
+  E09 | loss=0.8204 | val=0.9646
+  E10 | loss=0.8115 | val=0.9668
+  E11 | loss=0.8119 | val=0.9646
+  E12 | loss=0.8057 | val=0.9661
+  E13 | loss=0.8020 | val=0.9676
+  Early stop at E13
+  Best val: 0.9691
+model.safetensors: 100% 86.5M/86.5M [00:03<00:00, 22.3MB/s]
+Training eva02_small ...
+  E01 | loss=4.5867 | val=0.2753
+  E02 | loss=3.3375 | val=0.8024
+  E03 | loss=1.5504 | val=0.9427
+  E04 | loss=0.9819 | val=0.9638
+  E05 | loss=0.9025 | val=0.9653
+  E06 | loss=0.8857 | val=0.9563
+  E07 | loss=0.8647 | val=0.9683
+  E08 | loss=0.8429 | val=0.9781
+  E09 | loss=0.8350 | val=0.9698
+  E10 | loss=0.8359 | val=0.9766
+  E11 | loss=0.8180 | val=0.9736
+  E12 | loss=0.8149 | val=0.9766
+  E13 | loss=0.8142 | val=0.9796
+  E14 | loss=0.8085 | val=0.9759
+  E15 | loss=0.8023 | val=0.9804
+  E16 | loss=0.8017 | val=0.9774
+  E17 | loss=0.7964 | val=0.9819
+  E18 | loss=0.7965 | val=0.9804
+  E19 | loss=0.7905 | val=0.9796
+  E20 | loss=0.7909 | val=0.9804
+  E21 | loss=0.7916 | val=0.9789
+  E22 | loss=0.7899 | val=0.9811
+  Early stop at E22
+  Best val: 0.9819
+Downloading: "https://download.pytorch.org/models/resnet18-f37072fd.pth" to /root/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth
+100% 44.7M/44.7M [00:00<00:00, 226MB/s]
+SVM | val=0.9118 | test=0.8950
+
+ Evaluating models...
+  resnet50... 0.9645
+  efficientnet_b2... 0.9673
+  vit_b_16... 0.9618
+  convnext_tiny... 0.9666
+  eva02_small... 0.9679
+  svm_resnet_features... 0.8950
+  fig_acc_loss_epochs
+  fig_perclass_all
+  fig_cm_all
+Done. Figures saved to figures/
+Generating qualitative comparison...
+  resnet50... ok
+  efficientnet_b2... ok
+  vit_b_16... ok
+  convnext_tiny... ok
+  eva02_small... ok
+  svm_resnet_features... ok
+Done. Saved fig_qualitative_comparison.pdf
+
+/content/261-mini-project
+remote: Enumerating objects: 6, done.
+remote: Counting objects: 100% (6/6), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 4 (delta 2), reused 4 (delta 2), pack-reused 0 (from 0)
+Unpacking objects: 100% (4/4), 4.25 KiB | 4.25 MiB/s, done.
+From https://github.com/gracee-chen/261-mini-project
+   7bb5b40..fab7fab  master     -> origin/master
+Updating 7bb5b40..fab7fab
+Fast-forward
+ model/evaluate_metrics.py | 93 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 93 insertions(+)
+ create mode 100644 model/evaluate_metrics.py
+/content/261-mini-project/model
+Model               Top-1  Top-5  P(mac)  R(mac)  F1(mac)   P(wt)   R(wt)   F1(wt)
+------------------------------------------------------------------------------------------
+ResNet-50          96.45% 99.45%  0.9571  0.9541   0.9536  0.9666  0.9645   0.9642
+EfficientNet-B2    96.73% 99.52%  0.9614  0.9617   0.9593  0.9694  0.9673   0.9669
+ViT-B/16           96.18% 99.32%  0.9527  0.9519   0.9476  0.9666  0.9618   0.9614
+ConvNeXt-Tiny      96.66% 99.52%  0.9597  0.9543   0.9537  0.9693  0.9666   0.9659
+EVA-02-Small       96.79% 99.25%  0.9617  0.9577   0.9559  0.9719  0.9679   0.9674
+SVM+ResNet-18      89.50% 98.43%  0.9068  0.8325   0.8557  0.9134  0.8950   0.8935
+
+
+/content/261-mini-project
+remote: Enumerating objects: 15, done.
+remote: Counting objects: 100% (15/15), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 8 (delta 7), reused 8 (delta 7), pack-reused 0 (from 0)
+Unpacking objects: 100% (8/8), 1.49 KiB | 763.00 KiB/s, done.
+From https://github.com/gracee-chen/261-mini-project
+   fab7fab..c1d5ab7  master     -> origin/master
+Updating fab7fab..c1d5ab7
+Fast-forward
+ model/experiment/ablation_augmentation.py | 13 +++++++------
+ model/experiment/ablation_hog_vs_cnn.py   |  3 +--
+ model/experiment/ablation_image_size.py   | 16 +++++++++-------
+ model/experiment/ablation_optimizer.py    | 13 +++++++------
+ 4 files changed, 24 insertions(+), 21 deletions(-)
+/content/261-mini-project/model
+
+############################################################
+# Running: ablation_image_size.py
+############################################################
+
+Device: cuda
+
+==================================================
+  Image size: 112×112
+==================================================
+Traceback (most recent call last):
+  File "/content/261-mini-project/model/experiment/ablation_image_size.py", line 102, in <module>
+    results = run(device)
+              ^^^^^^^^^^^
+  File "/content/261-mini-project/model/experiment/ablation_image_size.py", line 64, in run
+    train_loss = train_epoch(model, train_loader, criterion, optimizer, device)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/content/261-mini-project/model/train.py", line 53, in train_epoch
+    logits = model(imgs)
+             ^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/timm/models/eva.py", line 1060, in forward
+    x = self.forward_features(x)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/timm/models/eva.py", line 1013, in forward_features
+    x = self.patch_embed(x)
+        ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/timm/layers/patch_embed.py", line 121, in forward
+    _assert(H == self.img_size[0], f"Input height ({H}) doesn't match model ({self.img_size[0]}).")
+  File "/usr/local/lib/python3.12/dist-packages/torch/__init__.py", line 2228, in _assert
+    assert condition, message
+           ^^^^^^^^^
+AssertionError: Input height (112) doesn't match model (224).
+
+############################################################
+# Running: ablation_augmentation.py
+############################################################
+
+Device: cuda
+
+==================================================
+  Augmentation: With
+==================================================
+  Epoch 1/20 | train_loss=4.5864 | train_acc=0.2982 | val_acc=0.3258
+  Epoch 2/20 | train_loss=2.8188 | train_acc=0.8725 | val_acc=0.8778
+  Epoch 3/20 | train_loss=1.1649 | train_acc=0.9403 | val_acc=0.9472
+  Epoch 4/20 | train_loss=0.9344 | train_acc=0.9632 | val_acc=0.9608
+  Epoch 5/20 | train_loss=0.8962 | train_acc=0.9745 | val_acc=0.9653
+  Epoch 6/20 | train_loss=0.8698 | train_acc=0.9754 | val_acc=0.9653
+  Epoch 7/20 | train_loss=0.8387 | train_acc=0.9803 | val_acc=0.9706
+  Epoch 8/20 | train_loss=0.8376 | train_acc=0.9857 | val_acc=0.9759
+  Epoch 9/20 | train_loss=0.8308 | train_acc=0.9869 | val_acc=0.9744
+  Epoch 10/20 | train_loss=0.8168 | train_acc=0.9918 | val_acc=0.9683
+  Epoch 11/20 | train_loss=0.8133 | train_acc=0.9928 | val_acc=0.9774
+  Epoch 12/20 | train_loss=0.8061 | train_acc=0.9942 | val_acc=0.9736
+  Epoch 13/20 | train_loss=0.7989 | train_acc=0.9961 | val_acc=0.9736
+  Epoch 14/20 | train_loss=0.7956 | train_acc=0.9954 | val_acc=0.9804
+  Epoch 15/20 | train_loss=0.7978 | train_acc=0.9967 | val_acc=0.9766
+  Epoch 16/20 | train_loss=0.7926 | train_acc=0.9975 | val_acc=0.9774
+  Epoch 17/20 | train_loss=0.7925 | train_acc=0.9969 | val_acc=0.9774
+  Epoch 18/20 | train_loss=0.7916 | train_acc=0.9970 | val_acc=0.9781
+  Epoch 19/20 | train_loss=0.7899 | train_acc=0.9970 | val_acc=0.9781
+  Epoch 20/20 | train_loss=0.7890 | train_acc=0.9981 | val_acc=0.9781
+  Best val acc (With): 0.9804 | Final train-val gap: 0.0200
+
+==================================================
+  Augmentation: Without
+==================================================
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  Epoch 1/20 | train_loss=4.5825 | train_acc=0.3161 | val_acc=0.3235
+  Epoch 2/20 | train_loss=2.6961 | train_acc=0.9104 | val_acc=0.8831
+  Epoch 3/20 | train_loss=1.0254 | train_acc=0.9717 | val_acc=0.9487
+  Epoch 4/20 | train_loss=0.8598 | train_acc=0.9817 | val_acc=0.9570
+  Epoch 5/20 | train_loss=0.8290 | train_acc=0.9921 | val_acc=0.9698
+  Epoch 6/20 | train_loss=0.8071 | train_acc=0.9954 | val_acc=0.9615
+  Epoch 7/20 | train_loss=0.7921 | train_acc=0.9986 | val_acc=0.9736
+  Epoch 8/20 | train_loss=0.7875 | train_acc=0.9989 | val_acc=0.9698
+  Epoch 9/20 | train_loss=0.7849 | train_acc=0.9991 | val_acc=0.9774
+  Epoch 10/20 | train_loss=0.7852 | train_acc=0.9987 | val_acc=0.9736
+  Epoch 11/20 | train_loss=0.7846 | train_acc=0.9991 | val_acc=0.9751
+  Epoch 12/20 | train_loss=0.7832 | train_acc=0.9994 | val_acc=0.9819
+  Epoch 13/20 | train_loss=0.7820 | train_acc=0.9995 | val_acc=0.9789
+  Epoch 14/20 | train_loss=0.7815 | train_acc=0.9995 | val_acc=0.9789
+  Epoch 15/20 | train_loss=0.7810 | train_acc=0.9995 | val_acc=0.9781
+  Epoch 16/20 | train_loss=0.7809 | train_acc=0.9995 | val_acc=0.9781
+  Epoch 17/20 | train_loss=0.7809 | train_acc=0.9995 | val_acc=0.9781
+  Epoch 18/20 | train_loss=0.7808 | train_acc=0.9995 | val_acc=0.9789
+  Epoch 19/20 | train_loss=0.7808 | train_acc=0.9995 | val_acc=0.9789
+  Early stopping at epoch 19
+  Best val acc (Without): 0.9819 | Final train-val gap: 0.0206
+
+==================================================
+  Ablation: Augmentation (EVA-02-Small, 20 epochs)
+==================================================
+  Augmentation       Val Acc   Train-Val Gap
+  ------------------------------------------
+  With                0.9804         0.0200
+  Without             0.9819         0.0206
+
+
+############################################################
+# Running: ablation_hog_vs_cnn.py
+############################################################
+
+Device: cuda
+
+==================================================
+  Feature type: CNN (ResNet-18)
+==================================================
+  Extracting CNN train features...
+  Extracting CNN val features...
+  Training SVM on CNN features...
+  CNN features dim=512, val_acc=0.9065
+
+==================================================
+  Feature type: HOG
+==================================================
+  Extracting HOG train features...
+/content/261-mini-project/model/experiment/ablation_hog_vs_cnn.py:50: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+  gray_pil = _PILImage.fromarray((gray * 255).astype(np.uint8), mode="L")
+  Extracting HOG val features...
+  Training SVM on HOG features...
+  HOG features dim=8100, val_acc=0.4329
+
+==================================================
+  Ablation: HOG vs CNN Features (SVM)
+==================================================
+  Features                Dim    Val Acc
+  ------------------------------------
+  CNN (ResNet-18)         512     0.9065
+  HOG                    8100     0.4329
+
+
+############################################################
+# Running: ablation_optimizer.py
+############################################################
+
+Device: cuda
+
+==================================================
+  Optimizer: AdamW (backbone_lr=2e-05, head_lr=0.0002)
+==================================================
+  Epoch 1/10 | train_loss=4.5862 | val_acc=0.3281
+  Epoch 2/10 | train_loss=2.4047 | val_acc=0.9072
+  Epoch 3/10 | train_loss=1.0427 | val_acc=0.9374
+  Epoch 4/10 | train_loss=0.9063 | val_acc=0.9600
+  Epoch 5/10 | train_loss=0.8650 | val_acc=0.9623
+  Epoch 6/10 | train_loss=0.8403 | val_acc=0.9683
+  Epoch 7/10 | train_loss=0.8312 | val_acc=0.9811
+  Epoch 8/10 | train_loss=0.8146 | val_acc=0.9819
+  Epoch 9/10 | train_loss=0.8042 | val_acc=0.9819
+  Epoch 10/10 | train_loss=0.8055 | val_acc=0.9842
+  Best val acc (AdamW): 0.9842
+
+==================================================
+  Optimizer: SGD (backbone_lr=0.001, head_lr=0.01)
+==================================================
+  Epoch 1/10 | train_loss=4.4606 | val_acc=0.2474
+  Epoch 2/10 | train_loss=2.3649 | val_acc=0.8763
+  Epoch 3/10 | train_loss=1.1501 | val_acc=0.9397
+  Epoch 4/10 | train_loss=0.9860 | val_acc=0.9548
+  Epoch 5/10 | train_loss=0.9425 | val_acc=0.9570
+  Epoch 6/10 | train_loss=0.9094 | val_acc=0.9676
+  Epoch 7/10 | train_loss=0.8899 | val_acc=0.9668
+  Epoch 8/10 | train_loss=0.8845 | val_acc=0.9683
+  Epoch 9/10 | train_loss=0.8785 | val_acc=0.9676
+  Epoch 10/10 | train_loss=0.8673 | val_acc=0.9698
+  Best val acc (SGD): 0.9698
+
+==================================================
+  Ablation: Optimizer (EVA-02-Small, 10 epochs)
+==================================================
+  Optimizer       Val Acc
+  ----------------------
+  AdamW            0.9842
+  SGD              0.9698
+
+
+============================================================
+  Ablation Suite Summary
+============================================================
+  Experiment                    Status
+  -----------------------------------
+  image_size                      FAIL
+  augmentation                    PASS
+  hog_vs_cnn                      PASS
+  optimizer                       PASS
+
+/content/261-mini-project
+Already up to date.
+/content/261-mini-project/model
+Device: cuda
+
+==================================================
+  Image size: 112×112
+==================================================
+  Epoch 1/10 | train_loss=4.5885 | val_acc=0.1229
+  Epoch 2/10 | train_loss=3.2670 | val_acc=0.6719
+  Epoch 3/10 | train_loss=1.5465 | val_acc=0.9027
+  Epoch 4/10 | train_loss=1.0628 | val_acc=0.9170
+  Epoch 5/10 | train_loss=0.9581 | val_acc=0.9389
+  Epoch 6/10 | train_loss=0.9152 | val_acc=0.9480
+  Epoch 7/10 | train_loss=0.8810 | val_acc=0.9472
+  Epoch 8/10 | train_loss=0.8518 | val_acc=0.9563
+  Epoch 9/10 | train_loss=0.8398 | val_acc=0.9517
+  Epoch 10/10 | train_loss=0.8373 | val_acc=0.9548
+  Best val acc for 112×112: 0.9563
+
+==================================================
+  Image size: 224×224
+==================================================
+  Epoch 1/10 | train_loss=4.5867 | val_acc=0.3054
+  Epoch 2/10 | train_loss=2.4234 | val_acc=0.9223
+  Epoch 3/10 | train_loss=1.0401 | val_acc=0.9457
+  Epoch 4/10 | train_loss=0.9074 | val_acc=0.9510
+  Epoch 5/10 | train_loss=0.8730 | val_acc=0.9646
+  Epoch 6/10 | train_loss=0.8397 | val_acc=0.9721
+  Epoch 7/10 | train_loss=0.8234 | val_acc=0.9759
+  Epoch 8/10 | train_loss=0.8129 | val_acc=0.9766
+  Epoch 9/10 | train_loss=0.8063 | val_acc=0.9759
+  Epoch 10/10 | train_loss=0.8092 | val_acc=0.9774
+  Best val acc for 224×224: 0.9774
+
+==================================================
+  Ablation: Image Size (EVA-02-Small, 10 epochs)
+==================================================
+  Size            Val Acc
+  ----------------------
+  112×112          0.9563
+  224×224          0.9774

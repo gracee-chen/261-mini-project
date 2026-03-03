@@ -1,0 +1,118 @@
+\section{Methodology}
+
+We describe our benchmarking pipeline, covering three components: (1) stratified data preparation, (2) model architectures with pretrained initialization, and (3) training protocols. All implementation details are aligned with our released codebase.
+
+\subsection{Dataset Preparation}
+
+Caltech-101~\citep{fei2004learning} contains 9{,}144 colour images across 102 categories (101 object classes plus a \textit{background} class). Tab.~\ref{tab:dataset_summary} summarises the key statistics. Images vary in resolution and aspect ratio; the class distribution is moderately imbalanced, with most classes containing 40--80 samples while a few exceed 400.
+
+\begin{table}[h]
+    \caption{\hl{Model architectures.} Head dim denotes the input dimension of the replaced classifier layer.}
+    \label{tab:arch_summary}
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{l p{3.5cm} r}
+    \toprule
+    Model & Key idea & Head dim \\
+    \midrule
+    ResNet-50~\citep{he2016deep}          & Residual skip connections     & 2048 \\
+    EfficientNet-B2~\citep{tan2019efficientnet} & Compound depth/width/res.\ scaling & 1408 \\
+    ViT-B/16~\citep{dosovitskiy2020image}      & Patch-based self-attention    & 768  \\
+    ConvNeXt-Tiny~\citep{liu2022convnet}   & Modernised ConvNet design     & 768  \\
+    EVA-02-Small~\citep{fang2024eva}       & MIM pre-training + CLIP distil.\ & 384  \\
+    \midrule
+    SVM + ResNet-18~\citep{donahue2014decaf}   & Frozen CNN features + RBF-kernel & 512  \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+
+\noindent We include all 102 categories and apply a stratified split to preserve class proportions. For each class $c$ with $n_c$ images:
+
+\bigskip
+\par\noindent
+\vspace*{1em}
+\begin{align}
+\eqnmarkbox[Emerald]{ntrain}{n_c^{\text{train}}} &= \max\!\Big(1,\;\left\lfloor \eqnmarkbox[OliveGreen]{rtrain}{0.70} \cdot \eqnmarkbox[NavyBlue]{nc}{n_c} \right\rfloor\Big), \quad
+\eqnmarkbox[WildStrawberry]{nval}{n_c^{\text{val}}} = \left\lfloor \eqnmarkbox[BurntOrange]{rval}{0.15} \cdot n_c \right\rfloor, \nonumber\\
+\eqnmarkbox[Plum]{ntest}{n_c^{\text{test}}} &= n_c - n_c^{\text{train}} - n_c^{\text{val}},
+\label{eq:split}
+\end{align}
+\annotate[yshift=1.8em]{above,right}{ntrain}{\tiny Train count}
+\annotate[yshift=1.8em]{above,left}{rtrain}{\tiny Train ratio}
+\annotate[yshift=1.8em]{above,right}{nc}{\tiny Class size}
+\annotate[yshift=1.8em]{above,right}{nval}{\tiny Val count}
+\annotate[yshift=1.8em]{above,right}{rval}{\tiny Val ratio}
+\annotate[yshift=-1em]{below,right}{ntest}{\tiny Test (remainder)}
+\vspace*{1em}
+
+\noindent The $\max(1, \cdot)$ operator guarantees at least one training sample per class. A fixed random seed ($s = 42$) ensures reproducibility. The resulting split yields 6{,}352 / 1{,}326 / 1{,}466 samples for train / validation / test.
+
+\subsection{Model Architectures}
+
+We benchmark six methods spanning three paradigms: convolutional networks, vision transformers, and classical machine learning. For all deep models, we load ImageNet-pretrained weights and replace the final classification head with a linear layer mapping to $C = 102$ classes. Tab.~\ref{tab:arch_summary} summarises the architectures.
+
+\begin{table}[h]
+\centering
+\caption{\hl{Model architectures.} Head dim: input dimension of the replaced classifier.}
+\label{tab:arch_summary}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{llr}
+\toprule
+Model & Key idea & Head dim \\
+\midrule
+ResNet-50 \citep{he2016deep}               & Residual connections          & 2048 \\
+EfficientNet-B2 \citep{tan2019efficientnet} & Compound scaling              & 1408 \\
+ViT-B/16 \citep{dosovitskiy2020image}      & Patch self-attention          & 768  \\
+ConvNeXt-Tiny \citep{liu2022convnet}        & Modernised ConvNet            & 768  \\
+EVA-02-Small \citep{fang2024eva}            & MIM + CLIP distillation       & 384  \\
+\midrule
+SVM + ResNet-18 \citep{donahue2014decaf}    & Frozen CNN feat.\ + RBF-SVM  & 512  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{CNNs.} ResNet-50 introduces residual skip connections that enable training of deeper networks without degradation. EfficientNet-B2 uses compound scaling to jointly optimise depth, width, and input resolution for better parameter efficiency. ConvNeXt-Tiny modernises the standard ConvNet design with larger kernels, layer normalisation, and inverted bottlenecks, closing the gap with transformer-based models.
+
+\textbf{Vision Transformers.} ViT-B/16 splits each image into $16{\times}16$ patches and processes them with multi-head self-attention, learning global dependencies from the first layer. EVA-02-Small extends this paradigm with masked image modelling (MIM) pre-training on ImageNet-22k and CLIP feature distillation, yielding stronger representations at a compact model size; it is loaded via the \texttt{timm} library.
+
+\textbf{Classical baseline.} The SVM baseline extracts 512-dim features from a frozen \texttt{ResNet-18}, standardises them, and trains an RBF-kernel SVM ($C{=}1$, $\gamma{=}\text{scale}$) without back-propagation, serving as a reference for how much end-to-end fine-tuning improves over fixed-feature classification.
+
+\subsection{Training Details}
+
+\textbf{Optimisation.} All deep models use AdamW~\citep{loshchilov2017decoupled} ($\lambda{=}10^{-4}$) with differential learning rates: backbone $\eta_{\text{bb}}$ and head $\eta_{\text{head}}$. \texttt{CNNs} use $10^{-4}$/$10^{-3}$; transformers (\texttt{ViT}, \texttt{EVA-02}) use $2{\times}10^{-5}$/$2{\times}10^{-4}$. We warm up linearly for 5 epochs, then apply cosine annealing:
+\begin{equation}
+\eta_t = \eta_{\min} + \tfrac{1}{2}(\eta_{\max} - \eta_{\min})\!\left(1 + \cos \tfrac{(t - T_w)\pi}{T - T_w}\right),
+\end{equation}
+where $T{=}30$ and $T_w{=}5$. Early stopping halts training after 5 epochs without validation improvement.
+
+\textbf{Regularisation and augmentation.} We use label smoothing~\citep{szegedy2016rethinking} ($\epsilon{=}0.1$), gradient clipping (max norm 1.0), and mixed-precision (FP16) on CUDA. Training augmentations include random crop ($224^2$ from $256^2$), horizontal flip, colour jitter, and random erasing~\citep{zhong2020random} ($p{=}0.25$); at inference we centre-crop $224^2$. All images use ImageNet normalisation.
+
+\textbf{Loss.} We minimise cross-entropy with label smoothing:
+
+\vspace{1em}
+\begin{equation}
+\label{eq:loss}
+\mathcal{L} = -\sum_{k=1}^{\eqnmarkbox[NavyBlue]{K}{K}} \left[ \left(1-\eqnmarkbox[OliveGreen]{eps}{\epsilon}\right)\, \mathbb{1}[y=k] + \frac{\epsilon}{\eqnmarkbox[NavyBlue]{K2}{K}} \right] \log \eqnmarkbox[WildStrawberry]{pk}{p_k},
+\end{equation}
+\annotate[yshift=1.8em]{above,left}{K}{\tiny Num.\ classes}
+\annotate[yshift=1.8em]{above,right}{eps}{\tiny Label smoothing}
+\annotate[yshift=-1em]{below,right}{pk}{\tiny Predicted prob.}
+\vspace{1em}
+
+\noindent where $K{=}102$ classes, $\epsilon{=}0.1$, and $p_k$ is the softmax output. Batch size is 32.
+
+\subsection{Evaluation Metrics}
+
+We report top-1 and top-5 accuracy, macro- and weighted-average precision, recall, and F1-score, per-class accuracy, and row-normalised confusion matrices on the held-out test set.
+
+\subsection{Ablation Studies}
+
+To isolate individual design choices, we conduct four ablation experiments on EVA-02-Small or the SVM baseline, varying one factor at a time while keeping all other settings identical to the main experiments:
+
+\begin{enumerate}[leftmargin=*, itemsep=2pt, topsep=4pt]
+    \item \textbf{Input resolution}: $112^2$ vs.\ $224^2$ (multiples of the EVA-02 patch size $14{\times}14$).
+    \item \textbf{Data augmentation}: with vs.\ without (random crop, horizontal flip, colour jitter, random erasing).
+    \item \textbf{Optimizer}: AdamW vs.\ SGD with separately tuned learning rates.
+    \item \textbf{Feature type} (SVM): learned CNN features (ResNet-18, 512-dim) vs.\ hand-crafted HOG descriptors (8{,}100-dim).
+\end{enumerate}

@@ -1,0 +1,16 @@
+\section{Conclusion}
+
+\textbf{Lessons learned.}
+
+\begin{itemize}
+  \item \textbf{Representation quality dominates the pipeline.} Across all experiments, the choice of feature representation---hand-crafted vs.\ learned, frozen vs.\ fine-tuned---explains far more variance than any other design decision. This suggests that practitioners should prioritise selecting a strong pretrained backbone over extensive hyperparameter tuning.
+
+  \item \textbf{Architecture choice is secondary to pretraining.} All four deep models perform within a narrow band on Caltech-101, indicating that on moderately sized datasets, the marginal return of switching architectures is small once a high-quality pretrained initialisation is available.
+
+  \item \textbf{Default training recipes deserve validation.} Common practices such as data augmentation and SGD are not universally optimal. Our ablations show that both can be outperformed by simpler alternatives (no augmentation, AdamW) when the backbone is sufficiently strong, highlighting the importance of empirical validation over convention.
+
+  \item \textbf{Class imbalance remains a challenge for fixed-feature methods.} The gap between macro and weighted metrics for the \texttt{SVM} baseline underscores that non-parametric classifiers on frozen features are disproportionately affected by imbalanced class distributions---a critical consideration for medical imaging, where rare pathologies are often the most clinically important.
+\end{itemize}
+
+\textbf{Conclusion.}
+This benchmark provides a reproducible comparison of six methods on Caltech-101 under consistent protocols, spanning classical machine learning to state-of-the-art vision transformers. The results demonstrate that transfer learning with a well-chosen pretrained backbone is the dominant factor for high accuracy, while optimizer, resolution, and augmentation choices offer meaningful but smaller gains. Future work could extend this framework to larger-scale or domain-specific datasets (e.g., medical imaging), where distribution shift, class imbalance, and domain-specific augmentation may alter the relative importance of these design decisions.

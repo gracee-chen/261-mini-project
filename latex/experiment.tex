@@ -1,0 +1,88 @@
+\section{Experiments and Results}
+
+We train all six models on a single NVIDIA A100 GPU following the protocol described in Sec.~3. This section reports the results on the held-out test set.
+
+\subsection{Overall Accuracy}
+
+Tab.~\ref{tab:main_results} summarises the test-set performance. \texttt{EVA-02-Small} achieves the highest overall accuracy (96.79\%), followed closely by \texttt{EfficientNet-B2} (96.73\%) and \texttt{ConvNeXt-Tiny} (96.66\%). All five deep models perform within a 0.61\,pp range, suggesting that on a medium-scale dataset like Caltech-101, ImageNet-pretrained representations already capture sufficient visual concepts, and architectural differences become secondary to the quality of pre-training. The \texttt{SVM} baseline reaches 89.50\%, trailing by over 7\,pp; this gap implies that feature \emph{adaptation} through back-propagation contributes more to final accuracy than the richness of the frozen feature space alone.
+
+Top-5 accuracy exceeds 99\% for all deep models, with \texttt{EfficientNet-B2} and \texttt{ConvNeXt-Tiny} reaching 99.52\%. Even the \texttt{SVM} achieves 98.43\%. The near-perfect top-5 scores indicate that misclassifications are primarily among semantically or visually similar categories rather than entirely unrelated classes, a pattern we examine further in the confusion matrices below.
+
+\begin{table}[t]
+\centering
+\caption{\hl{Test-set accuracy on Caltech-101.} Best values are highlighted.}
+\label{tab:main_results}
+\setlength{\tabcolsep}{6pt}
+\small
+\begin{tabular}{lcc}
+\toprule
+Model & Accuracy (\%) & Top-5 (\%) \\
+\midrule
+\texttt{ResNet-50}          & 96.45 & 99.45 \\
+\texttt{EfficientNet-B2}    & 96.73 & \cellcolor{blue!8}99.52 \\
+\texttt{ViT-B/16}           & 96.18 & 99.32 \\
+\texttt{ConvNeXt-Tiny}      & 96.66 & \cellcolor{blue!8}99.52 \\
+\texttt{EVA-02-Small}       & \cellcolor{blue!8}96.79 & 99.25 \\
+\texttt{SVM (ResNet-18)}    & 89.50 & 98.43 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Training Convergence}
+
+Fig.~\ref{fig:acc_loss_epochs}(a) shows validation accuracy vs.\ epoch. \texttt{ConvNeXt-Tiny} converges fastest (early stop at epoch 13), while \texttt{EVA-02-Small} improves the longest, reaching the highest validation accuracy (98.19\%) before stopping at epoch 22. This longer trajectory is consistent with MIM pre-training: self-supervised features require more gradient steps to adapt to supervised labels. The train--validation loss gap in Fig.~\ref{fig:acc_loss_epochs}(b) remains small throughout for all models, confirming that label smoothing and augmentation effectively control overfitting.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{Figure/fig_acc_loss_epochs.pdf}
+\caption{\hl{Training convergence.} (a)~Validation accuracy vs.\ epoch. The SVM (dashed) has no epoch-based training. (b)~Training loss (solid) and validation loss (dashed) vs.\ epoch.}
+\label{fig:acc_loss_epochs}
+\end{figure*}
+
+\subsection{Precision, Recall, and F1-Score}
+
+Tab.~\ref{tab:detailed_metrics} reports macro- and weighted-averaged precision, recall, and F1-score. For all deep models, weighted scores are slightly higher than macro scores, reflecting strong performance on frequent classes. The gap is most pronounced for the \texttt{SVM}: weighted F1 (0.8935) vs.\ macro F1 (0.8557), a 3.78\,pp difference. This disparity is particularly relevant for medical imaging applications, where rare pathologies correspond to minority classes and macro-averaged metrics better reflect diagnostic reliability. Among deep models, \texttt{EfficientNet-B2} achieves the highest macro recall (0.9617) and macro F1 (0.9593), suggesting that its compound-scaled architecture captures discriminative features at multiple granularities, benefiting both common and rare categories equally. \texttt{EVA-02-Small} leads in weighted precision (0.9719) and weighted F1 (0.9674), consistent with its advantage on the more populated classes.
+
+\begin{table}[t]
+\centering
+\caption{\hl{Macro and weighted P / R / F1} on the test set. Best values per column are highlighted.}
+\label{tab:detailed_metrics}
+\setlength{\tabcolsep}{3.5pt}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{Macro} & \multicolumn{3}{c}{Weighted} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+Model & Prec. & Rec. & F1 & Prec. & Rec. & F1 \\
+\midrule
+\texttt{ResNet-50}       & .9571 & .9541 & .9536 & .9666 & .9645 & .9642 \\
+\texttt{EfficientNet-B2} & .9614 & \cellcolor{blue!8}.9617 & \cellcolor{blue!8}.9593 & .9694 & .9673 & .9669 \\
+\texttt{ViT-B/16}        & .9527 & .9519 & .9476 & .9666 & .9618 & .9614 \\
+\texttt{ConvNeXt-Tiny}   & .9597 & .9543 & .9537 & .9693 & .9666 & .9659 \\
+\texttt{EVA-02-Small}    & \cellcolor{blue!8}.9617 & .9577 & .9559 & \cellcolor{blue!8}.9719 & \cellcolor{blue!8}.9679 & \cellcolor{blue!8}.9674 \\
+\texttt{SVM}             & .9068 & .8325 & .8557 & .9134 & .8950 & .8935 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-Class Accuracy}
+
+Fig.~\ref{fig:perclass_all} shows the per-class accuracy for each of the six models, with all 102 classes sorted by their average accuracy across models (ascending). The overall accuracy for each model is indicated by a vertical dashed line. The five deep models achieve near-perfect accuracy on the majority of classes, while the \texttt{SVM} exhibits a substantially longer lower tail, with multiple classes falling below 60\%. This pattern suggests that frozen CNN features lack the capacity to separate visually similar fine-grained categories; end-to-end fine-tuning learns task-specific discriminative boundaries that are critical for the hardest classes.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{Figure/fig_perclass_all.pdf}
+\caption{\hl{Per-class accuracy for all six models} (102 classes, sorted by average accuracy ascending). Vertical dashed lines mark overall accuracy. Deep models cluster near 100\% on most classes; the SVM shows greater variance.}
+\label{fig:perclass_all}
+\end{figure*}
+
+\subsection{Confusion Matrices}
+
+Fig.~\ref{fig:cm_all} presents the row-normalised confusion matrices for all six models side by side. For the five deep models, the strong diagonal confirms high per-class recall across the majority of categories; the few off-diagonal entries are concentrated among semantically related pairs (e.g., visually similar animal species or object sub-types), indicating that residual errors reflect genuine visual ambiguity rather than systematic model failure. The \texttt{SVM} confusion matrix shows a weaker diagonal with more diffuse off-diagonal entries, particularly for minority classes, confirming that fixed features lack the fine-grained adaptation needed to resolve these ambiguities.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{Figure/fig_cm_all.pdf}
+\caption{\hl{Normalised confusion matrices} for all six models (102 classes). Each row is normalised to sum to 1. Deep models show strong diagonals; the SVM exhibits more scattered misclassifications.}
+\label{fig:cm_all}
+\end{figure*}

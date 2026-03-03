@@ -1,0 +1,104 @@
+\section{Ablation Studies}
+
+We conduct four ablation experiments to isolate the effects of individual design choices. The first three use \texttt{EVA-02-Small}, our best-performing model (96.79\% validation accuracy), as the ablation backbone: ablating the strongest model maximises sensitivity to each design choice, since any performance degradation cannot be masked by headroom that weaker models might leave. The fourth ablation targets the \texttt{SVM} baseline to probe how feature quality affects a non-deep-learning classifier. All ablations share the same stratified split and early stopping as the main experiments.
+
+\subsection{Input Resolution}
+
+We compare $112{\times}112$ and $224{\times}224$ inputs on \texttt{EVA-02-Small} over 10 epochs. Both sizes are multiples of the patch size ($14{\times}14$), producing $8{\times}8$ and $16{\times}16$ patch grids respectively. As shown in Tab.~\ref{tab:ablation_imgsize}, halving the resolution reduces validation accuracy by 2.11\,pp (95.63\% vs.\ 97.74\%). The smaller input also converges more slowly, requiring 6 epochs to reach 94.80\% while the $224^2$ variant surpasses 92\% by epoch 2.
+
+This result highlights a fundamental property of patch-based transformers: the number of tokens directly controls the model's representational capacity. With $8{\times}8{=}64$ patches, the self-attention mechanism has access to only a quarter of the spatial context available at $16{\times}16{=}256$ patches. For fine-grained classification tasks such as distinguishing visually similar Caltech-101 categories (e.g., different animal species), this reduced spatial granularity limits the model's ability to capture subtle discriminative cues. The 2.11\,pp gap is notable given that both resolutions use the same pretrained weights, suggesting that spatial detail at inference time is a bottleneck independent of the quality of learned representations.
+
+\begin{table}[t]
+\centering
+\caption{\hl{Ablation: Input resolution} (\texttt{EVA-02-Small}, 10 epochs).}
+\label{tab:ablation_imgsize}
+\small
+\begin{tabular}{lccc}
+\toprule
+Resolution & Patch grid & Best Val Acc (\%) & Final Train Loss \\
+\midrule
+$112{\times}112$ & $8{\times}8$   & 95.63 & 0.837 \\
+$224{\times}224$ & $16{\times}16$ & \cellcolor{blue!8}97.74 & 0.809 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Optimizer: AdamW vs.\ SGD}
+
+We compare AdamW and SGD with momentum (0.9) over 10 epochs on \texttt{EVA-02-Small}. Learning rates are tuned independently: AdamW uses $\eta_{\text{bb}}{=}2{\times}10^{-5}$, $\eta_{\text{head}}{=}2{\times}10^{-4}$; SGD uses $\eta_{\text{bb}}{=}10^{-3}$, $\eta_{\text{head}}{=}10^{-2}$. As shown in Tab.~\ref{tab:ablation_opt}, AdamW achieves 98.42\% validation accuracy compared to 96.98\% for SGD, a gap of 1.44\,pp. Tab.~\ref{tab:ablation_opt_epochs} tracks epoch-wise convergence: AdamW reaches 90.72\% by epoch 2, while SGD requires epoch 3 to surpass 93\%.
+
+The advantage of AdamW is consistent with prior findings that adaptive optimizers are better suited for fine-tuning pretrained transformers~\citep{loshchilov2017decoupled}. In a transfer-learning setting, the backbone parameters are already well-initialised while the classification head is randomly initialised, creating a large gradient-magnitude imbalance between the two parameter groups. AdamW's per-parameter learning rate scaling naturally accommodates this heterogeneity, whereas SGD applies a uniform update rule that can either under-update the head or destabilise the backbone. The convergence gap in early epochs (32.8\% vs.\ 24.7\% at epoch 1) further suggests that AdamW navigates the initial high-curvature loss landscape more effectively, giving the classifier head a stronger starting point from which to refine.
+
+\begin{table}[t]
+\centering
+\caption{\hl{Ablation: Optimizer} (\texttt{EVA-02-Small}, 10 epochs). Learning rates are tuned independently per optimizer.}
+\label{tab:ablation_opt}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccc}
+\toprule
+Optimizer & LR (bb / head) & Best Val Acc (\%) & Final Train Loss \\
+\midrule
+AdamW & $2{\times}10^{-5}$ / $2{\times}10^{-4}$   & \cellcolor{blue!8}98.42 & 0.806 \\
+SGD   & $10^{-3}$ / $10^{-2}$                       & 96.98 & 0.867 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{\hl{Optimizer convergence.} Val accuracy (\%) per epoch on \texttt{EVA-02-Small}.}
+\label{tab:ablation_opt_epochs}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccccccccc}
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+\midrule
+AdamW & 32.8 & 90.7 & 93.7 & 96.0 & 96.2 & 96.8 & 98.1 & 98.2 & 98.2 & \cellcolor{blue!8}98.4 \\
+SGD   & 24.7 & 87.6 & 94.0 & 95.5 & 95.7 & 96.8 & 96.7 & 96.8 & 96.8 & \cellcolor{blue!8}97.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Augmentation}
+
+We train \texttt{EVA-02-Small} for 20 epochs with and without data augmentation. The ``with'' variant applies random crop, horizontal flip, colour jitter, and random erasing ($p{=}0.25$); the ``without'' variant uses only resize, centre crop, and ImageNet normalisation. As shown in Tab.~\ref{tab:ablation_aug}, both variants achieve similar validation accuracy (98.04\% vs.\ 98.19\%), and the train--validation gaps are comparable (2.00\% vs.\ 2.06\%).
+
+Contrary to the typical expectation that augmentation prevents overfitting, removing augmentation does not degrade performance. This can be attributed to the strong representations acquired through masked image modelling (MIM) pre-training: the \texttt{EVA-02-Small} backbone was trained on ImageNet-22k to reconstruct randomly masked patches, a process that inherently teaches invariance to local occlusions, spatial shifts, and appearance variations---effects that overlap substantially with those of standard augmentation. When the backbone already encodes such robust, augmentation-invariant features, explicit augmentation at fine-tuning time provides little additional regularisation. This finding has practical implications for medical imaging pipelines, where domain-specific augmentation (e.g., stain normalisation, elastic deformation) can be costly to design; a sufficiently powerful pretrained backbone may render such augmentation unnecessary for moderately sized datasets.
+
+\begin{table*}[t]
+\centering
+\caption{\hl{Ablation: Data augmentation} (\texttt{EVA-02-Small}, 20 epochs).}
+\label{tab:ablation_aug}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Augmentation & Best Val Acc (\%) & Final Train Acc (\%) & Train--Val Gap & Final Train Loss \\
+\midrule
+With    & 98.04 & 99.81 & 2.00\% & 0.789 \\
+Without & \cellcolor{blue!8}98.19 & 99.95 & 2.06\% & 0.781 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Feature Representation: CNN vs.\ HOG}
+
+We compare learned CNN features with hand-crafted HOG descriptors for the \texttt{SVM} baseline. Both feature sets are standardised and fed to the same RBF-kernel SVM ($C{=}1$, $\gamma{=}\text{scale}$). As shown in Tab.~\ref{tab:ablation_feat}, frozen \texttt{ResNet-18} features (512-dim) achieve 90.65\% validation accuracy, while HOG descriptors (8{,}100-dim) reach only 43.29\%, a gap of 47.36\,pp despite having 16$\times$ the dimensionality.
+
+This result demonstrates that feature \emph{quality} far outweighs feature \emph{quantity}. The CNN features, learned from millions of labelled images, encode hierarchical semantic information---from low-level edges and textures to high-level object parts and spatial relationships---that is directly relevant to category discrimination. HOG, by contrast, captures only local gradient orientations within fixed cells, lacking any mechanism for learning task-relevant abstractions. The 47.36\,pp gap is the largest effect observed across all ablations, underscoring that representation learning is the single most important factor in the classification pipeline. This finding also contextualises the remaining 7\,pp gap between the CNN-based \texttt{SVM} and fine-tuned deep models: while frozen CNN features are far superior to hand-crafted ones, end-to-end fine-tuning further adapts these representations to the target distribution, closing the last mile of performance.
+
+\begin{table}[t]
+\centering
+\caption{\hl{Ablation: Feature representation} for the SVM classifier.}
+\label{tab:ablation_feat}
+\small
+\begin{tabular}{lccc}
+\toprule
+Features & Dimensionality & Val Acc (\%) & $\Delta$ (pp) \\
+\midrule
+CNN (ResNet-18) & 512    & \cellcolor{blue!8}90.65 & -- \\
+HOG             & 8{,}100 & 43.29 & $-$47.36 \\
+\bottomrule
+\end{tabular}
+\end{table}
