@@ -223,40 +223,45 @@ def fig_perclass_all(results, class_names):
 
 
 # ================================================================
-# Figure 3: Confusion matrices — 5 models side by side in one row
+# Figure 3: Confusion matrices — 3 rows x 2 cols
 # ================================================================
 def fig_cm_all(results, class_names):
     n_models = len(MODEL_NAMES)
     n_classes = len(class_names)
+    nrows, ncols = 3, 2
 
-    fig, axes = plt.subplots(1, n_models, figsize=(n_models * 3.5, 3.8))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 4.0, nrows * 3.8))
 
     for i, (mname, dname) in enumerate(zip(MODEL_NAMES, DISPLAY_NAMES)):
-        ax = axes[i]
+        row, col = divmod(i, ncols)
+        ax = axes[row, col]
         cm = results[mname]["confusion_matrix"]
         row_sums = cm.sum(axis=1, keepdims=True)
         cm_norm = np.where(row_sums > 0, cm.astype(float) / row_sums, 0.0)
 
         im = ax.imshow(cm_norm, interpolation="nearest", cmap="Blues", vmin=0, vmax=1)
 
-        ax.set_title(f"{dname}", fontsize=9, pad=6)
+        ax.set_title(f"{dname}", fontsize=10, pad=6)
 
-        # Sparse ticks for readability
         tick_positions = list(range(0, n_classes, 20))
         ax.set_xticks(tick_positions)
-        ax.set_xticklabels(tick_positions, fontsize=6)
+        ax.set_xticklabels(tick_positions, fontsize=7)
         ax.set_yticks(tick_positions)
-        ax.set_yticklabels(tick_positions, fontsize=6)
+        ax.set_yticklabels(tick_positions, fontsize=7)
 
-        if i == 0:
+        if col == 0:
             ax.set_ylabel("True Label", fontsize=9)
         else:
             ax.tick_params(axis="y", left=False, labelleft=False)
 
-        ax.set_xlabel("Predicted", fontsize=8)
+        if row == nrows - 1:
+            ax.set_xlabel("Predicted", fontsize=9)
+        else:
+            ax.tick_params(axis="x", bottom=False, labelbottom=False)
 
-    # Shared colorbar
-    cbar = fig.colorbar(im, ax=axes.tolist(), fraction=0.015, pad=0.02, shrink=0.85)
+    fig.subplots_adjust(hspace=0.25, wspace=0.12)
+
+    cbar = fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.015, pad=0.02, shrink=0.85)
     cbar.set_label("Recall", fontsize=9)
 
     fig.savefig(FIGURE_DIR / "fig_cm_all.pdf")
@@ -269,11 +274,19 @@ def fig_cm_all(results, class_names):
 # main
 # ================================================================
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--only-cm", action="store_true", help="Only regenerate confusion matrix figure")
+    args = parser.parse_args()
+
     print("Evaluating models...")
     results, class_names, num_classes = evaluate_all()
 
-    fig_acc_loss_epochs()
-    fig_perclass_all(results, class_names)
-    fig_cm_all(results, class_names)
+    if args.only_cm:
+        fig_cm_all(results, class_names)
+    else:
+        fig_acc_loss_epochs()
+        fig_perclass_all(results, class_names)
+        fig_cm_all(results, class_names)
 
     print("Done. Figures saved to figures/")
